@@ -1,0 +1,9 @@
+DIM < contador,promedio,actual,suma> AS < Integer,Float,Float,Float >
+PUT "Prueba.txt LyC Tema 1!"; *- Esto es un comentario *- anidado -* asdasd -*
+PUT "Ingrese un valor entero para actual: ";
+GET actual;
+contador = 0;
+suma = 02.5+0xA2B0;
+PUT "La suma es: ";
+PUT suma;
+promedio = contar (actual*contador ; [256,0b10,52,4]);
