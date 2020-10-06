@@ -16,7 +16,7 @@ DIM					"DIM"|"dim"
 AS					"AS"|"as"
 INTEGER				"INTEGER"|"Integer"
 FLOAT				"FLOAT"|"Float"
-STRING				"STRING"|"string"
+STRING				"STRING"|"String"
 PUT					"PUT"|"put"
 GET					"GET"|"get"
 WHILE				"WHILE"|"while"
@@ -63,43 +63,42 @@ CTE_BINARIA			0b{BINARIO}+
 CTE_HEXA			0x({DIGITO}|{HEXA})+
 
 %%
-{COMENTARIO}		printf("Comentario: %s\n", yytext);
-{DIM}				{printf("dim: %s\n", yytext); return DIM;}
-{AS}				{printf("as: %s\n", yytext); return AS;}
-{INTEGER}			{printf("INTEGER: %s\n", yytext); return INTEGER;}
-{FLOAT}				{printf("Float: %s\n", yytext); return FLOAT;}
-{STRING}			{printf("String: %s\n", yytext); return STRING;}
-{PUT}				{printf("put: %s\n", yytext); return PUT;}
-{GET}				{printf("get: %s\n", yytext); return GET;}
-{WHILE}				{printf("While: %s\n", yytext); return WHILE;}
-{IF}				{printf("if: %s\n", yytext); return IF;}
-{ELSE}				{printf("else: %s\n", yytext); return ELSE;}
-{AND}				{printf("and: %s\n", yytext); return AND;}
-{OR}				{printf("or: %s\n", yytext); return OR;}
-{NOT}				{printf("not: %s\n", yytext); return NOT;}
-{CONTAR}			{printf("Contar: %s\n", yytext); return CONTAR;}
-{COMA}				{printf("Coma: %s\n", yytext); return COMA;}
-{PyC}				{printf("pyc: %s\n", yytext); return PyC;}
-{P_A}				{printf("P A: %s\n", yytext); return P_A;}
-{P_C}				{printf("P C: %s\n", yytext); return P_C;}
-{L_A}				{printf("L A: %s\n", yytext); return L_A;}
-{L_C}				{printf("L C: %s\n", yytext); return L_C;}
-{C_A}				{printf("C A: %s\n", yytext); return C_A;}
-{C_C}				{printf("C C: %s\n", yytext); return C_C;}
-{ASIG}				{printf("Asignacion: %s\n", yytext); return ASIG;}
-{OP_SUMA}			{printf("Suma: %s\n", yytext); return OP_SUMA;}
-{OP_RESTA}			{printf("resta: %s\n", yytext); return OP_RESTA;}
-{OP_MULT}			{printf("multi: %s\n", yytext); return OP_MULT;}
-{OP_DIV}			{printf("Divi: %s\n", yytext); return OP_DIV;}
-{MAYOR}				{printf("Mayor: %s\n", yytext); return MAYOR;}
-{MENOR}				{printf("Menor: %s\n", yytext); return MENOR;}
-{MAYOR_IGUAL}		{printf("mayorIgu: %s\n", yytext); return MAYOR_IGUAL;}
-{MENOR_IGUAL}		{printf("menorigu: %s\n", yytext); return MENOR_IGUAL;}
-{IGUAL}				{printf("igual: %s\n", yytext); return IGUAL;}
-{DISTINTO}		 	{printf("distinto: %s\n", yytext); return DISTINTO;}
+{COMENTARIO}		
+{DIM}				{return DIM;}
+{AS}				{return AS;}
+{INTEGER}			{return INTEGER;}
+{FLOAT}				{return FLOAT;}
+{STRING}			{return STRING;}
+{PUT}				{return PUT;}
+{GET}				{return GET;}
+{WHILE}				{return WHILE;}
+{IF}				{return IF;}
+{ELSE}				{return ELSE;}
+{AND}				{return AND;}
+{OR}				{return OR;}
+{NOT}				{return NOT;}
+{CONTAR}			{return CONTAR;}
+{COMA}				{return COMA;}
+{PyC}				{return PyC;}
+{P_A}				{return P_A;}
+{P_C}				{return P_C;}
+{L_A}				{return L_A;}
+{L_C}				{return L_C;}
+{C_A}				{return C_A;}
+{C_C}				{return C_C;}
+{ASIG}				{return ASIG;}
+{OP_SUMA}			{return OP_SUMA;}
+{OP_RESTA}			{return OP_RESTA;}
+{OP_MULT}			{return OP_MULT;}
+{OP_DIV}			{return OP_DIV;}
+{MAYOR}				{return MAYOR;}
+{MENOR}				{return MENOR;}
+{MAYOR_IGUAL}		{return MAYOR_IGUAL;}
+{MENOR_IGUAL}		{return MENOR_IGUAL;}
+{IGUAL}				{return IGUAL;}
+{DISTINTO}		 	{return DISTINTO;}
 
 {ID}				{//guardar el ID en Tabla de simbolo
-					printf("ID: %s\n", yytext);
 
 					return ID;
 					}
@@ -107,35 +106,26 @@ CTE_HEXA			0x({DIGITO}|{HEXA})+
 					
 {CTE_ENTERA}		{//controlar el rango y despues guardar en tabla
 
-					printf("CTE_ENTERA: %s\n", yytext);
-
 					return CTE_ENTERA;
 					}
 					
 {CTE_REAL}			{//lo mismo
-
-					printf("CTE_REAL: %s\n", yytext);
 
 					return CTE_REAL;
 					}
 					
 {CTE_STRING}		{
 
-					printf("CTE_STRING: %s\n", yytext);
 					return CTE_STRING;
 					}
 					
 {CTE_BINARIA}		{
-					printf("CTE_BINARIA: %s\n", yytext);
-
 
 					return CTE_BINARIA;
 					}
 					
 					
 {CTE_HEXA}			{
-					printf("\nCTE_HEXA: %s\n", yytext);
-
 
 					return CTE_HEXA;
 					}
