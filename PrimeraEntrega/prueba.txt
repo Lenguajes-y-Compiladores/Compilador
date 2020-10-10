@@ -1,6 +1,6 @@
 DIM < contador,promedio,actual,suma> AS < Integer,Float,Float,Float >
 PUT "Prueba.txt LyC Tema 1!";
-PUT "Ingrese un valor entero para actual: ";
+PUT "Ingrese entero para actual: ";
 GET actual;
 contador = 0;
 suma = 02.5+0xA2B0;
@@ -13,7 +13,7 @@ while (contador <= 92) {
 PUT "La suma es: ";
 PUT suma;
 if (actual > 0b10 and actual <> 0){
-	PUT "actual es mayor que 2 y distinto de cero";
+	PUT "actual mayor a 2 y dist a 0";
 }
 Else
 {
