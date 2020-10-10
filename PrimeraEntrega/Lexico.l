@@ -135,7 +135,7 @@ CTE_HEXA			0x({DIGITO}|{HEXA})+
 					
 {CTE_STRING}		{
 
-					validarLongitudCadena(yytext); armarTS("CTE", yytext); return CTE_STRING;
+					validarLongitudCadena(yytext); armarTS("CTE_STR", yytext); return CTE_STRING;
 					}
 					
 {CTE_BINARIA}		{
@@ -199,7 +199,7 @@ int armarTS (char* tipo, char* nombre){
 
 	tablaSimbolos[puntero_array].tipo[0]='\0';
 	
-    if(nombre[0] == '\"')//Si se trata de una constante string, entonces contar las cantidad de caracteres y setear en ts.
+    if(strcmp(tipo, "CTE_STR")==0)//Si se trata de una constante string, entonces contar las cantidad de caracteres y setear en ts.
     {
         itoa(strlen(nombre),longi_str_cte,10);
         strcpy(tablaSimbolos[i].longitud,longi_str_cte);

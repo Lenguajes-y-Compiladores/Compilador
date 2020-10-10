@@ -3,8 +3,8 @@ _contador
 _promedio															
 _actual															
 _suma															
-_Prueba.txt LyC Tema 1										Prueba.txt LyC Tema 1					
-_Ingrese entero para actual:										Ingrese entero para actual:					
+_Prueba.txt LyC Tema 1															21
+_Ingrese entero para actual:															27
 _0										0					
 _02.5										02.5					
 _0xA2B0										41648					
@@ -15,7 +15,7 @@ _256										256
 _0b10										2					
 _52										52					
 _4										4					
-_La suma es:										La suma es:					
-_actual mayor a 2 y dist a 										actual mayor a 2 y dist a 					
+_La suma es:															11
+_actual mayor a 2 y dist a 															26
 _0b111010										58					
-_no es mayor que 										no es mayor que 					
+_no es mayor que 															16
