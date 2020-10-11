@@ -1,10 +1,31 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 
 #include "y.tab.h"
+
 int yystopparser=0;
 FILE  *yyin;
+
+struct struct_tablaSimbolos{
+	char nombre[100];
+	char tipo[100];
+	char valor[50];
+	char longitud[100];
+};
+
+int puntero_array = 0;
+
+struct struct_tablaSimbolos tablaSimbolos[1000];
+
+int armarTS (char*, char*);
+int imprimirTS();
+void validarLongitudCadena(char*);
+void validarLimitesInt(char*);
+void validarLimitesFloat(char*);
+long hexADecimal (char*);
 
 int yyerror();
 int yylex();
@@ -180,6 +201,8 @@ int main(int argc, char* argv[])
     else
     {
         yyparse();
+		if(imprimirTS() == 1) 
+			printf("Error al crear el archivo de la tabla de simbolos\n");
     }
     fclose(yyin);
     return 0;
@@ -191,6 +214,92 @@ int yyerror(void)
     exit(1);
 }
 
+/*******************************************/
+int armarTS (char* tipo, char* nombre){
 
+    char longi_str_cte[10];
+	int i;
+	int retornar;
+	char lexema[50]; 
+    char cteBin[25];
+    char cteHex[25];
+    char aux [50];
+	lexema[0]='_';
+	lexema[1]='\0';
+    int tamAux;
+    if(nombre[0] == '\"')
+    {
+       tamAux = strlen(nombre)-2;
+       strcpy(nombre, (nombre+1));
+       nombre[tamAux] = '\0'; 
+    
+    }
+	
+	if(strcmp(tipo,"ID")==0){
+		strcpy(lexema,nombre);
+	}else
+		strcat(lexema,nombre);
+    
+	for(i = 0; i < puntero_array; i++){ //Si esta vacia la TS, no entra
+		if(strcmp(tablaSimbolos[i].nombre, lexema) == 0)
+			return i; //Si el lexema ya existe en la ts, entonces retorno su posicion.
+	}
 
+	if(strcmp(tipo,"CTE")==0){// Si el lexema es una cte, entonces seteo el campo "valor" en la ts.
+		strcpy(tablaSimbolos[puntero_array].valor, nombre);
+    }
+    else{
+        if(strcmp(tipo,"CTE_BIN") == 0){
+            itoa(binADecimal(nombre), cteBin, 10);
+            strcpy(tablaSimbolos[puntero_array].valor, cteBin);
+        }else{
+            if(strcmp(tipo, "CTE_HEX") == 0){
+                itoa(hexADecimal(nombre), cteHex, 10);
+                strcpy(tablaSimbolos[puntero_array].valor, cteHex);
+            }else
+                tablaSimbolos[puntero_array].valor[0]='\0';
+						
+        }
+    }
+        
+	strcpy(tablaSimbolos[puntero_array].nombre, lexema ); //Seteo el campo "nombre" en la ts en todos los casos.
 
+	tablaSimbolos[puntero_array].tipo[0]='\0';
+	
+    if(strcmp(tipo, "CTE_STR")==0)//Si se trata de una constante string, entonces contar las cantidad de caracteres y setear en ts.
+    {
+        itoa(strlen(nombre),longi_str_cte,10);
+        strcpy(tablaSimbolos[i].longitud,longi_str_cte);
+		strcpy(tablaSimbolos[i].valor,nombre);
+    } else
+	       tablaSimbolos[puntero_array].longitud[0]='\0';
+	
+	retornar = puntero_array;
+	puntero_array++;
+	
+	return retornar; //Si el lexema no existe en la ts, entonces se agrega al final de la ts y se devuelve su posicion.
+    
+}
+/*******************************************/
+int imprimirTS(){
+	FILE *pf; 
+	int i;
+	pf = fopen("ts.txt","w"); 
+
+	if (!pf)
+	{
+		printf("Error al crear el archivo de tabla de simbolos\n");
+		return 1;
+	}
+
+	fprintf(pf, "%-35s %-20s %-45s %-20s\n", "Nombre", "Tipo", "Valor", "Longitud");
+	//fprintf(pf, "Nombre\t\t\t\t\tTipo\t\t\t\t\tValor\t\t\t\t\tLongitud\n");
+	for (i = 0; i < puntero_array; i++)
+		//fprintf(pf,"%s\t\t\t\t\t%s\t\t\t\t\t%s\t\t\t\t\t%s\n", tablaSimbolos[i].nombre,tablaSimbolos[i].tipo,tablaSimbolos[i].valor,tablaSimbolos[i].longitud);
+		fprintf(pf, "%-35s %-20s %-45s %-20s\n", tablaSimbolos[i].nombre,tablaSimbolos[i].tipo,tablaSimbolos[i].valor,tablaSimbolos[i].longitud);
+		
+	
+	fclose(pf); 
+
+	return 0;
+}
