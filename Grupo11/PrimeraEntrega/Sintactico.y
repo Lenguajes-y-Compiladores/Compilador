@@ -246,26 +246,27 @@ int armarTS (char* tipo, char* nombre){
 		strcpy(tablaSimbolos[puntero_array].tipo, "Entero");
 		strcpy(tablaSimbolos[puntero_array].valor, nombre);
     }
-	
-	if(strcmp(tipo,"CTE_FLOAT")==0){
-		strcpy(tablaSimbolos[puntero_array].tipo, "Real");
-		strcpy(tablaSimbolos[puntero_array].valor, nombre);
-	}
-    else{
-        if(strcmp(tipo,"CTE_BIN") == 0){
-            itoa(binADecimal(nombre), cteBin, 10);
-			strcpy(tablaSimbolos[puntero_array].tipo, "Binario");
-            strcpy(tablaSimbolos[puntero_array].valor, cteBin);
-        }else{
-            if(strcmp(tipo, "CTE_HEX") == 0){
-                itoa(hexADecimal(nombre), cteHex, 10);
-				strcpy(tablaSimbolos[puntero_array].tipo, "Hexadecimal");
-                strcpy(tablaSimbolos[puntero_array].valor, cteHex);
-            }else
-                tablaSimbolos[puntero_array].valor[0]='\0';
+	else{
+		if(strcmp(tipo,"CTE_FLOAT")==0){
+			strcpy(tablaSimbolos[puntero_array].tipo, "Real");
+			strcpy(tablaSimbolos[puntero_array].valor, nombre);
+		}
+		else{
+			if(strcmp(tipo,"CTE_BIN") == 0){
+				itoa(binADecimal(nombre), cteBin, 10);
+				strcpy(tablaSimbolos[puntero_array].tipo, "Binario");
+				strcpy(tablaSimbolos[puntero_array].valor, cteBin);
+			}else{
+				if(strcmp(tipo, "CTE_HEX") == 0){
+					itoa(hexADecimal(nombre), cteHex, 10);
+					strcpy(tablaSimbolos[puntero_array].tipo, "Hexadecimal");
+					strcpy(tablaSimbolos[puntero_array].valor, cteHex);
+				}else
+					tablaSimbolos[puntero_array].valor[0]='\0';
 						
-        }
-    }
+			}
+		}
+	}
         
 	strcpy(tablaSimbolos[puntero_array].nombre, lexema ); //Seteo el campo "nombre" en la ts en todos los casos.
 
