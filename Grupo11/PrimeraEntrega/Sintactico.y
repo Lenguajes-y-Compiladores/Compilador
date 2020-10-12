@@ -237,6 +237,7 @@ int armarTS (char* tipo, char* nombre){
 	
 	if(strcmp(tipo,"ID")==0){
 		strcpy(lexema,nombre);
+		strcpy(tablaSimbolos[puntero_array].tipo, "ID");
 	}else
 		strcat(lexema,nombre);
     
@@ -245,16 +246,24 @@ int armarTS (char* tipo, char* nombre){
 			return i; //Si el lexema ya existe en la ts, entonces retorno su posicion.
 	}
 
-	if(strcmp(tipo,"CTE")==0){// Si el lexema es una cte, entonces seteo el campo "valor" en la ts.
+	if(strcmp(tipo,"CTE_ENT")==0){// Si el lexema es una cte, entonces seteo el campo "valor" en la ts.
+		strcpy(tablaSimbolos[puntero_array].tipo, "Entero");
 		strcpy(tablaSimbolos[puntero_array].valor, nombre);
     }
+	
+	if(strcmp(tipo,"CTE_FLOAT")==0){
+		strcpy(tablaSimbolos[puntero_array].tipo, "Real");
+		strcpy(tablaSimbolos[puntero_array].valor, nombre);
+	}
     else{
         if(strcmp(tipo,"CTE_BIN") == 0){
             itoa(binADecimal(nombre), cteBin, 10);
+			strcpy(tablaSimbolos[puntero_array].tipo, "Binario");
             strcpy(tablaSimbolos[puntero_array].valor, cteBin);
         }else{
             if(strcmp(tipo, "CTE_HEX") == 0){
                 itoa(hexADecimal(nombre), cteHex, 10);
+				strcpy(tablaSimbolos[puntero_array].tipo, "Hexadecimal");
                 strcpy(tablaSimbolos[puntero_array].valor, cteHex);
             }else
                 tablaSimbolos[puntero_array].valor[0]='\0';
@@ -264,11 +273,12 @@ int armarTS (char* tipo, char* nombre){
         
 	strcpy(tablaSimbolos[puntero_array].nombre, lexema ); //Seteo el campo "nombre" en la ts en todos los casos.
 
-	tablaSimbolos[puntero_array].tipo[0]='\0';
+	//tablaSimbolos[puntero_array].tipo[0]='\0';
 	
     if(strcmp(tipo, "CTE_STR")==0)//Si se trata de una constante string, entonces contar las cantidad de caracteres y setear en ts.
     {
         itoa(strlen(nombre),longi_str_cte,10);
+		strcpy(tablaSimbolos[i].tipo, "String");
         strcpy(tablaSimbolos[i].longitud,longi_str_cte);
 		strcpy(tablaSimbolos[i].valor,nombre);
     } else
@@ -293,9 +303,7 @@ int imprimirTS(){
 	}
 
 	fprintf(pf, "%-35s %-20s %-45s %-20s\n", "Nombre", "Tipo", "Valor", "Longitud");
-	//fprintf(pf, "Nombre\t\t\t\t\tTipo\t\t\t\t\tValor\t\t\t\t\tLongitud\n");
 	for (i = 0; i < puntero_array; i++)
-		//fprintf(pf,"%s\t\t\t\t\t%s\t\t\t\t\t%s\t\t\t\t\t%s\n", tablaSimbolos[i].nombre,tablaSimbolos[i].tipo,tablaSimbolos[i].valor,tablaSimbolos[i].longitud);
 		fprintf(pf, "%-35s %-20s %-45s %-20s\n", tablaSimbolos[i].nombre,tablaSimbolos[i].tipo,tablaSimbolos[i].valor,tablaSimbolos[i].longitud);
 		
 	

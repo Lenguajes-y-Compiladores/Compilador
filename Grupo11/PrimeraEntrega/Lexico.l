@@ -116,12 +116,12 @@ CTE_HEXA			0x({DIGITO}|{HEXA})+
 					
 {CTE_ENTERA}		{
 					validarLimitesInt(yytext);
-					armarTS("CTE", yytext); return CTE_ENTERA;
+					armarTS("CTE_ENT", yytext); return CTE_ENTERA;
 					}
 					
 {CTE_REAL}			{
 					validarLimitesFloat(yytext);
-					armarTS("CTE", yytext); return CTE_REAL;
+					armarTS("CTE_FLOAT", yytext); return CTE_REAL;
 					}
 					
 {CTE_STRING}		{
