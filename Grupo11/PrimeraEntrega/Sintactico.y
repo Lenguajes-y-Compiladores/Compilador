@@ -22,10 +22,6 @@ struct struct_tablaSimbolos tablaSimbolos[1000];
 
 int armarTS (char*, char*);
 int imprimirTS();
-void validarLongitudCadena(char*);
-void validarLimitesInt(char*);
-void validarLimitesFloat(char*);
-long hexADecimal (char*);
 
 int yyerror();
 int yylex();
