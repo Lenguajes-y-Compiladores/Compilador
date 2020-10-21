@@ -121,7 +121,7 @@ decision:
 		;
 
 iteracion:
-			WHILE P_A condicion P_C L_A bloque L_C {printf("\n\tRegla 21: decision -> IF P_A condicion P_C L_A bloque L_C\n");}
+			WHILE P_A condicion P_C L_A bloque L_C {printf("\n\tRegla 21: iteracion -> WHILE P_A condicion P_C L_A bloque L_C\n");}
 			;
 			
 condicion:
