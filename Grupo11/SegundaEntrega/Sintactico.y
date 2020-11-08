@@ -64,6 +64,8 @@ int verTopeDinamica(t_pila *,t_dato *);
 void escribirArbol(nodo *);
 int inOrden(FILE *, struct nodo*);
 int esHoja(nodo *);
+void llenarGragh(nodo*, FILE *, int);
+void escribirGragh(nodo*);
 /***************************************************/
 
 nodo* bloquePtr = NULL;
@@ -137,7 +139,7 @@ t_pila pila = NULL;
 %%
 
 programa:
-		seccion_declaraciones bloque {printf("\n\tCOMPILACION EXITOSA\n"); escribirArbol(bloquePtr);}
+		seccion_declaraciones bloque {printf("\n\tCOMPILACION EXITOSA\n"); escribirArbol(bloquePtr); escribirGragh(bloquePtr);}
 		;
 
 seccion_declaraciones:
@@ -366,6 +368,8 @@ lista_constantes:
 				;
 
 %%
+
+///////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char* argv[])
 {
@@ -653,3 +657,38 @@ int esHoja(nodo *hoja) {
 }
 
 /***************************/
+
+void llenarGragh(nodo* padre, FILE *arch, int numNodo) {
+    if(padre == NULL) {
+        return;
+    }
+    int numHI = numNodo*2+1;
+    int numHD = numNodo*2+2;
+    
+    if(padre->hijoIzq) {
+        fprintf(arch, "\t\"%s@%d\" -> \"%s@%d\"\n", padre->dato, numNodo, padre->hijoIzq->dato, numHI);
+    }
+    if(padre->hijoDer) {
+        fprintf(arch, "\t\"%s@%d\" -> \"%s@%d\"\n", padre->dato, numNodo, padre->hijoDer->dato, numHD);
+    }
+    llenarGragh(padre->hijoIzq, arch, numHI);
+    llenarGragh(padre->hijoDer, arch, numHD);
+    return;
+}
+
+void escribirGragh(nodo* padre) {
+    FILE *archivo;
+
+	archivo = fopen("intermedia.dot", "w");
+	if (archivo == NULL) {
+		return;
+	}
+    //escribir la plantilla para dibujar el grafo
+    fprintf(archivo, "%s\n", "digraph G {");
+    llenarGragh(padre, archivo, 0);
+    fprintf(archivo, "%s", "}");
+    
+    fclose(archivo);
+    //liberarMemoria(padre);
+    return;
+}

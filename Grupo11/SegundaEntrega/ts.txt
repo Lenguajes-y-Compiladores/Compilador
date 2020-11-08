@@ -2,3 +2,5 @@ Nombre                              Tipo                 Valor                  
 a                                   int                                                                                    
 b                                   int                                                                                    
 _2                                  Entero               2                                                                 
+_1                                  Entero               1                                                                 
+_5                                  Entero               5                                                                 
