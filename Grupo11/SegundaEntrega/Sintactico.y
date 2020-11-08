@@ -61,6 +61,9 @@ void crear_pila(t_pila *pp);
 int apilarDinamica(t_pila *, const t_dato *);
 int desapilarDinamica(t_pila *,t_dato *);
 int verTopeDinamica(t_pila *,t_dato *);
+void escribirArbol(nodo *);
+int inOrden(FILE *, struct nodo*);
+int esHoja(nodo *);
 /***************************************************/
 
 nodo* bloquePtr = NULL;
@@ -84,10 +87,10 @@ t_pila pila = NULL;
 %}
 
 %union {
-char * int_val;
-char * float_val;
-char * str_val;
-char * strid_val;
+	char * int_val;
+	char * float_val;
+	char * str_val;
+	char * strid_val;
 }
 
 %token DIM
@@ -134,7 +137,7 @@ char * strid_val;
 %%
 
 programa:
-		seccion_declaraciones bloque {printf("\n\tCOMPILACION EXITOSA\n");}
+		seccion_declaraciones bloque {printf("\n\tCOMPILACION EXITOSA\n"); escribirArbol(bloquePtr);}
 		;
 
 seccion_declaraciones:
@@ -587,4 +590,66 @@ int verTopeDinamica(t_pila *PP, t_dato *pd)
     *pd=(*PP)->dato;
 
 }
+
+void escribirArbol(nodo *padre) {
+    FILE *archivo = fopen("intermedia.txt", "w");
+    if (archivo == NULL) {
+        return;
+    }
+    inOrden(archivo, padre);
+    fclose(archivo);
+}
+
+int inOrden(FILE *archivo, struct nodo* raiz) {
+    if (raiz != NULL) {
+        int izq = inOrden(archivo, raiz->hijoIzq);
+        if (izq == 1) {
+            if (esHoja(raiz->hijoDer)) {
+                // la izquierda ya esta, y la derecha es hoja
+                fprintf(archivo, "%s  ", raiz->hijoIzq);
+                fprintf(archivo, "%s  ", raiz->dato);
+                fprintf(archivo, "%s  ", raiz->hijoDer);
+                fprintf(archivo, "\n");
+                return 1;
+            }
+            // estoy pasando de izquierda a derecha (ya dibuje la izquierda)
+            // printf("%s  ", raiz->dato);
+        }
+
+        inOrden(archivo, raiz->hijoDer);
+
+        if (esHoja(raiz->hijoIzq) && esHoja(raiz->hijoDer)) {
+            // soy nodo mas a la izquierda con dos hijos hojas 
+            fprintf(archivo, "%s  ", raiz->hijoIzq);
+            fprintf(archivo, "%s  ", raiz->dato);
+            fprintf(archivo, "%s  ", raiz->hijoDer);
+            fprintf(archivo, "\n");  
+            return 1;
+        }
+
+        if (izq == 1) {
+            // porque a la izquierda imprimi y seguro la derecha va encontrar dibujarse
+            return 1;
+        }
+
+        if (izq == 0 && raiz->hijoIzq != NULL) {
+            // resulta que mi hijo de la derecha tiene mas prioridad y al subir tengo que imprimirme
+            fprintf(archivo, "%s  ", raiz->hijoIzq);
+            fprintf(archivo, "%s  ", raiz->dato);
+            fprintf(archivo, "%s  ", raiz->hijoDer);
+            fprintf(archivo, "\n");
+            return 1;
+        }
+    }
+    // porque estoy a la izquierda pero soy hoja y mi padre todavia no me imprimio
+    return 0;
+}
+
+int esHoja(nodo *hoja) {
+    if (hoja == NULL) {
+        return 0;
+    }
+    return hoja->hijoIzq == NULL && hoja->hijoDer == NULL;
+}
+
 /***************************/

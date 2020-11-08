@@ -1,0 +1,4 @@
+DIM < a,b> AS < Integer,Integer>
+
+a=2;
+b=a;
