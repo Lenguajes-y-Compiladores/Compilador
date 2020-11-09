@@ -3,17 +3,9 @@ contador                            int
 promedio                            float                                                                                  
 actual                              float                                                                                  
 suma                                float                                                                                  
-_Prueba.txt LyC Tema 1!             String               Prueba.txt LyC Tema 1!                        22                  
-@STDOUT@STDOUT                      int                                                                                    
-_Ingrese entero para actual:        String               Ingrese entero para actual:                   28                  
-@STDIN@STDIN                        int                                                                                    
-_0                                  Entero               0                                                                 
+suma1                                                                                                                      
 _02.5                               Real                 02.5                                                              
 _0xA2B0                             Hexadecimal          41648                                                             
-_92                                 Entero               92                                                                
-_1                                  Entero               1                                                                 
-_0.342                              Real                 0.342                                                             
-_256                                Entero               256                                                               
+suma2                                                                                                                      
+_5                                  Entero               5                                                                 
 _0b10                               Binario              2                                                                 
-_52                                 Entero               52                                                                
-_4                                  Entero               4                                                                 

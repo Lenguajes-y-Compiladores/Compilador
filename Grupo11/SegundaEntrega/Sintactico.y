@@ -139,8 +139,8 @@ t_pila pila = NULL;
 %token <int_val> CTE_ENTERA
 %token <float_val> CTE_REAL
 %token <str_val> CTE_STRING                
-%token CTE_BINARIA
-%token CTE_HEXA
+%token <int_val>CTE_BINARIA
+%token <int_val>CTE_HEXA
 
 %%
 
@@ -323,14 +323,16 @@ expresion:
 				printf("\n\tRegla 37: expresion -> termino\n");
 			}
 			|expresion OP_SUMA termino {
-                nodo* aux = crearNodo("+", desapilarDinamica(&pila), terminoPtr);
-                apilarDinamica(&pila, &aux);
+                expresionPtr = crearNodo("+", desapilarDinamica(&pila), terminoPtr);
+                //nodo* aux = crearNodo("+", desapilarDinamica(&pila), terminoPtr);
+                apilarDinamica(&pila, &expresionPtr);
 				//expresionPtr = crearNodo("+", expresionPtr, terminoPtr);
 				printf("\n\tRegla 38: expresion -> expresion OP_SUMA termino\n");
 			}
 			|expresion OP_RESTA termino {
-                nodo* aux = crearNodo("-", desapilarDinamica(&pila), terminoPtr);
-				apilarDinamica(&pila, &aux);
+                expresionPtr = crearNodo("-", desapilarDinamica(&pila), terminoPtr);
+                //nodo* aux = crearNodo("-", desapilarDinamica(&pila), terminoPtr);
+				apilarDinamica(&pila, &expresionPtr);
                 //expresionPtr = crearNodo("-", expresionPtr, terminoPtr);
 				printf("\n\tRegla 39: expresion -> expresion OP_RESTA termino\n");
 			}
@@ -343,10 +345,12 @@ termino:
 		}
 		|termino OP_MULT factor {
 			terminoPtr = crearNodo("*", terminoPtr, factorPtr);
+            apilarDinamica(&pila, &terminoPtr);
 			printf("\n\tRegla 41: termino -> termino OP_MULT factor\n");
 		}
 		|termino OP_DIV factor {
 			terminoPtr = crearNodo("/", terminoPtr, factorPtr);
+            apilarDinamica(&pila, &terminoPtr);
 			printf("\n\tRegla 42: termino -> termino OP_DIV factor\n");
 		}
 		;
@@ -369,15 +373,34 @@ factor:
 			printf("\n\tRegla 46: factor -> CTE_STRING\n");
 		}
 		|CTE_BINARIA {
-			//factorPtr = crearHoja($1);
+            char nombre [25];
+            nombre[0] = '_';
+            nombre[1] = '\0';
+            int pos = buscar_TS(strcat(nombre,$1));
+            if(pos == -1){
+                printf("\nNo encontrado\n");
+                exit(1);
+            }
+			factorPtr = crearHoja(tablaSimbolos[pos].valor);
 			printf("\n\tRegla 47: factor -> CTE_BINARIA\n");
 		}
 		|CTE_HEXA {
-			//factorPtr = crearHoja($1);
+            char nombre [25];
+            nombre[0] = '_';
+            nombre[1] = '\0';
+            int pos = buscar_TS(strcat(nombre,$1));
+            if(pos == -1){
+                printf("\nNo encontrado\n");
+                exit(1);
+            }
+			factorPtr = crearHoja(tablaSimbolos[pos].valor);
 			printf("\n\tRegla 48: factor -> CTE_HEXA\n");
 		}
 		|P_A expresion P_C {
+            
 			factorPtr = desapilarDinamica(&pila);
+            
+            apilarDinamica(&pila, &factorPtr);
             //factorPtr = expresionPtr;
 			//nodo *ret = NULL;
 			//desapilarDinamica(&pila, &ret);
@@ -535,7 +558,6 @@ int set_Tipo_TS(char* nombre, char* tipo){
     }
     int pos = buscar_TS(nombre);
     if(pos == -1){
-        printf("\ntablaVariables[contadorTipo]: %s\n",nombre);
         printf("\nNo encontrado\n");
         exit(1);
     }

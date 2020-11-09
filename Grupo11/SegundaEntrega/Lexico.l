@@ -131,13 +131,13 @@ CTE_HEXA			0x({DIGITO}|{HEXA})+
 					
 {CTE_BINARIA}		{
 
-					armarTS("CTE_BIN", yytext); return CTE_BINARIA;
+					armarTS("CTE_BIN", yytext); yylval.int_val= strdup(yytext); return CTE_BINARIA;
 					}
 					
 					
 {CTE_HEXA}			{
 
-					armarTS("CTE_HEX", yytext); return CTE_HEXA;
+					armarTS("CTE_HEX", yytext); yylval.int_val= strdup(yytext); return CTE_HEXA;
 					}
 
 " "

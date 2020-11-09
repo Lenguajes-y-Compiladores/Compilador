@@ -1,9 +1,4 @@
-contador  <=  92  
-contador  +  1  
-contador  =  +  
-contador  /  0.342  
-actual  *  contador  
-actual  *  contador  
-actual  =  +  
-suma  +  actual  
-suma  =  +  
+02.5  +  41648  
+suma1  =  +  
+5  +  2  
+suma2  =  +  
