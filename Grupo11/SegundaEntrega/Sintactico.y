@@ -90,6 +90,7 @@ nodo* factorPtr = NULL;
 nodo* contarPtr = NULL;
 nodo* listaContantesPtr = NULL;
 t_pila pila = NULL;
+nodo* pivot = NULL;
 
 
 %}
@@ -413,12 +414,24 @@ factor:
 		;
 
 contar:
-		CONTAR P_A expresion PyC C_A lista_constantes C_C P_C {printf("\n\tRegla 51: contar -> CONTAR P_A expresion PyC C_A lista_constantes C_C P_C\n");}
+		CONTAR P_A expresion { pivot = desapilarDinamica(&pila); } PyC C_A lista_constantes C_C P_C {
+			contarPtr = listaContantesPtr;
+			printf("\n\tRegla 51: contar -> CONTAR P_A expresion PyC C_A lista_constantes C_C P_C\n");
+		}
 		;
 
 lista_constantes:
-				factor {printf("\n\tRegla 52: lista_constantes -> factor\n");}
-				|lista_constantes COMA factor {printf("\n\tRegla 53: lista_constantes -> lista_constantes COMA factor\n");}
+				factor {
+					listaContantesPtr = crearNodo("CONTAR", crearNodo("IF", crearNodo("==", pivot, factorPtr), crearNodo("=", crearHoja("@CONT"), crearNodo("+", crearHoja("@CONT"), crearHoja("1")))), NULL);
+					apilarDinamica(&pila, &listaContantesPtr);
+					printf("\n\tRegla 52: lista_constantes -> factor\n");
+				}
+				|lista_constantes COMA factor {
+					listaContantesPtr = desapilarDinamica(&pila);
+					listaContantesPtr = crearNodo("CONTAR", crearNodo("IF", crearNodo("==", pivot, factorPtr), crearNodo("=", crearHoja("@CONT"), crearNodo("+", crearHoja("@CONT"), crearHoja("1")))), NULL);
+					apilarDinamica(&pila, &listaContantesPtr);
+					printf("\n\tRegla 53: lista_constantes -> lista_constantes COMA factor\n");
+				}
 				;
 
 %%

@@ -1,0 +1,3 @@
+DIM < a,b,c,d> AS < Integer,Integer,Integer,Integer>
+
+a = contar (c*d ; [5,2,2,2]);
