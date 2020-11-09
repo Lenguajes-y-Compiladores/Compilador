@@ -1,11 +1,8 @@
-Nombre                              Tipo                 Valor                                         Longitud            
-contador                            int                                                                                    
-promedio                            float                                                                                  
-actual                              float                                                                                  
-suma                                float                                                                                  
-suma1                                                                                                                      
-_02.5                               Real                 02.5                                                              
-_0xA2B0                             Hexadecimal          41648                                                             
-suma2                                                                                                                      
-_5                                  Entero               5                                                                 
-_0b10                               Binario              2                                                                 
+NOMBRE                              TIPO                 VALOR                                         LONGITUD            
+a                                   int                                                                                    
+b                                   int                                                                                    
+c                                   int                                                                                    
+d                                   int                                                                                    
+_5                                  Cte_Entera           5                                                                 
+@CONT@CONT                          int                                                                                    
+_2                                  Cte_Entera           2                                                                 

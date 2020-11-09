@@ -232,7 +232,7 @@ decision:
 iteracion:
 			WHILE P_A condicion P_C L_A bloque L_C {
                 bloquePtr = desapilarDinamica(&pila);
-                iteracionPtr = crearNodo("WHILE", desapilarDinamica(&pila), bloquePtr);
+                iteracionPtr = crearNodo("WHILE", desapilarDinamica(&pila), crearNodo("CUERPO", bloquePtr, NULL));
                 printf("\n\tRegla 21: iteracion -> WHILE P_A condicion P_C L_A bloque L_C\n");}
 			;
 			
@@ -415,7 +415,7 @@ factor:
 
 contar:
 		CONTAR P_A expresion { pivot = desapilarDinamica(&pila); } PyC C_A lista_constantes C_C P_C {
-			contarPtr = listaContantesPtr;
+			contarPtr = desapilarDinamica(&pila);
 			printf("\n\tRegla 51: contar -> CONTAR P_A expresion PyC C_A lista_constantes C_C P_C\n");
 		}
 		;
@@ -427,8 +427,7 @@ lista_constantes:
 					printf("\n\tRegla 52: lista_constantes -> factor\n");
 				}
 				|lista_constantes COMA factor {
-					listaContantesPtr = desapilarDinamica(&pila);
-					listaContantesPtr = crearNodo("CONTAR", crearNodo("IF", crearNodo("==", pivot, factorPtr), crearNodo("=", crearHoja("@CONT"), crearNodo("+", crearHoja("@CONT"), crearHoja("1")))), NULL);
+					listaContantesPtr = crearNodo("CONTAR", crearNodo("IF", crearNodo("==", pivot, factorPtr), crearNodo("=", crearHoja("@CONT"), crearNodo("+", crearHoja("@CONT"), crearHoja("1")))), listaContantesPtr);
 					apilarDinamica(&pila, &listaContantesPtr);
 					printf("\n\tRegla 53: lista_constantes -> lista_constantes COMA factor\n");
 				}
@@ -498,23 +497,23 @@ int armarTS (char* tipo, char* nombre){
 	}
 
 	if(strcmp(tipo,"CTE_ENT")==0){// Si el lexema es una cte, entonces seteo el campo "valor" en la ts.
-		strcpy(tablaSimbolos[puntero_array].tipo, "Entero");
+		strcpy(tablaSimbolos[puntero_array].tipo, "Cte_Entera");
 		strcpy(tablaSimbolos[puntero_array].valor, nombre);
     }
 	else{
 		if(strcmp(tipo,"CTE_FLOAT")==0){
-			strcpy(tablaSimbolos[puntero_array].tipo, "Real");
+			strcpy(tablaSimbolos[puntero_array].tipo, "Cte_Real");
 			strcpy(tablaSimbolos[puntero_array].valor, nombre);
 		}
 		else{
 			if(strcmp(tipo,"CTE_BIN") == 0){
 				itoa(binADecimal(nombre), cteBin, 10);
-				strcpy(tablaSimbolos[puntero_array].tipo, "Binario");
+				strcpy(tablaSimbolos[puntero_array].tipo, "Cte_Binario");
 				strcpy(tablaSimbolos[puntero_array].valor, cteBin);
 			}else{
 				if(strcmp(tipo, "CTE_HEX") == 0){
 					itoa(hexADecimal(nombre), cteHex, 10);
-					strcpy(tablaSimbolos[puntero_array].tipo, "Hexadecimal");
+					strcpy(tablaSimbolos[puntero_array].tipo, "Cte_Hexadecimal");
 					strcpy(tablaSimbolos[puntero_array].valor, cteHex);
 				}else
 					tablaSimbolos[puntero_array].valor[0]='\0';
@@ -530,7 +529,7 @@ int armarTS (char* tipo, char* nombre){
     if(strcmp(tipo, "CTE_STR")==0)//Si se trata de una constante string, entonces contar las cantidad de caracteres y setear en ts.
     {
         itoa(strlen(nombre),longi_str_cte,10);
-		strcpy(tablaSimbolos[i].tipo, "String");
+		strcpy(tablaSimbolos[i].tipo, "Cte_String");
         strcpy(tablaSimbolos[i].longitud,longi_str_cte);
 		strcpy(tablaSimbolos[i].valor,nombre);
     } else
@@ -554,7 +553,7 @@ int imprimirTS(){
 		return 1;
 	}
 
-	fprintf(pf, "%-35s %-20s %-45s %-20s\n", "Nombre", "Tipo", "Valor", "Longitud");
+	fprintf(pf, "%-35s %-20s %-45s %-20s\n", "NOMBRE", "TIPO", "VALOR", "LONGITUD");
 	for (i = 0; i < puntero_array; i++)
 		fprintf(pf, "%-35s %-20s %-45s %-20s\n", tablaSimbolos[i].nombre,tablaSimbolos[i].tipo,tablaSimbolos[i].valor,tablaSimbolos[i].longitud);
 		
