@@ -17,7 +17,3 @@ _256                                Entero               256
 _0b10                               Binario              2                                                                 
 _52                                 Entero               52                                                                
 _4                                  Entero               4                                                                 
-_La suma es:                        String               La suma es:                                   12                  
-_actual mayor a 2 y dist a 0        String               actual mayor a 2 y dist a 0                   27                  
-_0b111010                           Binario              58                                                                
-_no es mayor que 2                  String               no es mayor que 2                             17                  
