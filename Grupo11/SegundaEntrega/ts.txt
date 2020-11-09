@@ -17,4 +17,3 @@ _256                                Entero               256
 _0b10                               Binario              2                                                                 
 _52                                 Entero               52                                                                
 _4                                  Entero               4                                                                 
-

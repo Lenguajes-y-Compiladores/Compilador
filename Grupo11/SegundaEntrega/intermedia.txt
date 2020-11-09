@@ -1,4 +1,3 @@
-
 contador  <=  92  
 contador  +  1  
 contador  =  +  
@@ -8,4 +7,3 @@ actual  *  contador
 actual  =  +  
 suma  +  actual  
 suma  =  +  
-
