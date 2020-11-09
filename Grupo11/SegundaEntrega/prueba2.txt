@@ -50,8 +50,8 @@ if (actual > 0b10){
 }
 Else
 {
-	if (actual < 0b111010){
-		PUT "no es mayor que 2";
+	if (not actual < 0b111010){
+		PUT "actual mayor";
 	}
 }
 

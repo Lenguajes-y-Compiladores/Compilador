@@ -6,7 +6,7 @@ c:\MinGW\bin\gcc.exe lex.yy.c y.tab.c -o Segunda.exe
 pause
 pause
 
-Segunda.exe pruebaContar.txt
+Segunda.exe prueba.txt
 
 pause
 dot -Tpng intermedia.dot -o intermedia.png

@@ -1,0 +1,5 @@
+DIM < contador> AS < Integer >
+
+while (contador <= 92) {
+	contador = contador + 1;
+}

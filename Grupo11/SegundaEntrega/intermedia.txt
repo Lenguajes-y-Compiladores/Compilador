@@ -1,17 +1,5 @@
-c  *  d  
-*  ==  2  
-@CONT  +  1  
-@CONT  =  +  
-c  *  d  
-*  ==  2  
-@CONT  +  1  
-@CONT  =  +  
-c  *  d  
-*  ==  2  
-@CONT  +  1  
-@CONT  =  +  
-c  *  d  
-*  ==  5  
-@CONT  +  1  
-@CONT  =  +  
-a  =  CONTAR  
+actual  >  2  
+actual  <>  0  
+@STDOUT  PUT  actual mayor a 2 y dist a 0  
+actual  <  58  
+@STDOUT  PUT  no es mayor que 2  

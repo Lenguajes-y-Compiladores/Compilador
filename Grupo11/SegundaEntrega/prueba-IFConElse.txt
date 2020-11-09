@@ -1,0 +1,9 @@
+DIM < a> AS < Integer >
+
+if (a > 0b10){
+	PUT "a es mayor";
+}
+Else{
+
+	a = 10;
+}

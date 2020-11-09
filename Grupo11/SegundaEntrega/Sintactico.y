@@ -34,10 +34,11 @@ char* auxTDD;
 
 int buscar_TS(char* nombre);
 int set_Tipo_TS(char* nombre, char* tipo);
+void verificarDeclaraciones();
 /***************************************************/
 /*******************ARBOL***************************/
 typedef struct nodo{
-    char dato[20];
+    char dato[30];
     struct nodo* hijoDer;
     struct nodo* hijoIzq;
 }nodo; //estructura para el arbol sintactico
@@ -146,7 +147,7 @@ nodo* pivot = NULL;
 %%
 
 programa:
-		seccion_declaraciones bloque {printf("\n\tCOMPILACION EXITOSA\n"); escribirArbol(bloquePtr); escribirGragh(bloquePtr);}
+		seccion_declaraciones {verificarDeclaraciones();} bloque {printf("\n\tCOMPILACION EXITOSA\n"); escribirArbol(bloquePtr); escribirGragh(bloquePtr);}
 		;
 
 seccion_declaraciones:
@@ -294,7 +295,7 @@ comparador:
 				printf("\n\tRegla 32: comparador -> IGUAL\n");
 			}
 			|DISTINTO {
-				comparadorPtr = crearHoja("!=");
+				comparadorPtr = crearHoja("<>");
 				printf("\n\tRegla 33: comparador -> DISTINTO\n");
 			}
 			;
@@ -481,13 +482,13 @@ int armarTS (char* tipo, char* nombre){
     }/********/
     if(nombre[0] == '@')
     {
-        strcpy(lexema,nombre);
-        strcpy(tablaSimbolos[puntero_array].tipo, tipo);
+		strcpy(lexema,nombre);
+		strcpy(tablaSimbolos[puntero_array].tipo, tipo);
+		
     }/******/
 	
 	if(strcmp(tipo,"ID")==0){
 		strcpy(lexema,nombre);
-		//strcpy(tablaSimbolos[puntero_array].tipo, "ID");
 	}else
 		strcat(lexema,nombre);
     
@@ -564,7 +565,7 @@ int imprimirTS(){
 }
 /***************************/
 int set_Tipo_TS(char* nombre, char* tipo){
-    if(contadorTipo> contadorVariables){
+    if(contadorTipo > contadorVariables){
         printf("contadorTipo > contadorVariables");
         return 0;
     }
@@ -587,6 +588,15 @@ int i;
 	}
     return -1;
 }
+
+void verificarDeclaraciones(){
+	if(contadorVariables != contadorTipo){
+		printf("\nLa cantidad de variables declaradas es distinto a la cantidad de Tipos\n");
+		printf("Por favor, declare correctamente y vuelva a ejecutar el programa\n");
+		exit(1);
+	}
+
+}
 /***************************/
 /********ARBOL**************/
 
@@ -599,7 +609,6 @@ nodo* crearNodo(const char *d, nodo* hI, nodo* hD) {
     strcpy(nodoPadre->dato, d);
     nodoPadre->hijoDer = hD;
     nodoPadre->hijoIzq = hI;
-    //escribeLog(nodoPadre->dato, nodoPadre->hijoIzq->dato, nodoPadre->hijoDer->dato);
     return nodoPadre;
 }
 
@@ -614,7 +623,6 @@ nodo* crearHoja(const char *d) {
     nuevoNodo->hijoIzq = NULL;
     if(strncmp(nuevoNodo->dato, "@", 1) == 0) {
         armarTS("int", nuevoNodo->dato);
-        //InsertarToken_TS(nuevoNodo->dato, "int", strlen(nuevoNodo->dato), "");
     }
     return nuevoNodo;
 }
@@ -762,8 +770,8 @@ void escribirGragh(nodo* padre) {
 char * comparadorOpuesto(nodo* raiz){
     
     if(strcmp(raiz->dato, "==") == 0) {
-        return "!=";
-    } else if (strcmp(raiz->dato, "!=") == 0) {
+        return "<>";
+    } else if (strcmp(raiz->dato, "<>") == 0) {
         return "==";
     } else if (strcmp(raiz->dato, "<") == 0) {
         return ">=";
