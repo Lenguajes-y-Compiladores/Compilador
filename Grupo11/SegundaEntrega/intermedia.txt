@@ -1,2 +1,16 @@
-a  =  2  
-b  =  a  
+contador  <=  92  
+contador  +  1  
+contador  =  +  
+contador  /  0.342  
+actual  *  contador  
+actual  *  contador  
+actual  =  +  
+suma  +  actual  
+suma  =  +  
+@STDOUT  PUT  La suma es:   
+@STDOUT  PUT  suma  
+actual  >  actual  
+actual  !=  0  
+@STDOUT  PUT  actual mayor a 2 y d  
+actual  <  actual  
+@STDOUT  PUT  no es mayor que 2  

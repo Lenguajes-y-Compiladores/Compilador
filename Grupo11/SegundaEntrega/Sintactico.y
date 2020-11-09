@@ -54,16 +54,23 @@ typedef struct s_nodo
 // Estructura para la pila dinamica
 typedef t_nodo* t_pila;
 
+nodo* retorno = NULL;
 
 nodo* crearNodo(const char* , nodo* , nodo* );
 nodo* crearHoja(const char*);
 void crear_pila(t_pila *pp);
-int apilarDinamica(t_pila *, const t_dato *);
-int desapilarDinamica(t_pila *,t_dato *);
+int apilarDinamica(t_pila *, t_dato *);
+nodo * desapilarDinamica(t_pila *);
 int verTopeDinamica(t_pila *,t_dato *);
 void escribirArbol(nodo *);
 int inOrden(FILE *, struct nodo*);
 int esHoja(nodo *);
+
+void escribirGragh(nodo* padre);
+void llenarGragh(nodo* padre, FILE *arch, int numNodo);
+void liberarMemoria(nodo* padre);
+char * comparadorOpuesto(nodo* );
+//void validarComparacion();
 /***************************************************/
 
 nodo* bloquePtr = NULL;
@@ -137,7 +144,7 @@ t_pila pila = NULL;
 %%
 
 programa:
-		seccion_declaraciones bloque {printf("\n\tCOMPILACION EXITOSA\n"); escribirArbol(bloquePtr);}
+		seccion_declaraciones bloque {printf("\n\tCOMPILACION EXITOSA\n"); escribirArbol(bloquePtr); escribirGragh(bloquePtr);}
 		;
 
 seccion_declaraciones:
@@ -171,6 +178,7 @@ bloque:
             printf("\n\tRegla 11: bloque -> sentencias\n");
         }
 		|bloque sentencias {
+            bloquePtr = desapilarDinamica(&pila);
 			bloquePtr = crearNodo("BLOQUE", bloquePtr, sentenciasPtr);
 			apilarDinamica(&pila, &bloquePtr);
 			printf("\n\tRegla 12: bloque -> bloque sentencias\n");
@@ -202,25 +210,28 @@ sentencias:
 
 asignacion:
 			ID ASIG expresion {
-				asignacionPtr = crearNodo("=", crearHoja($1), expresionPtr);
+                asignacionPtr = crearNodo("=", crearHoja($1), desapilarDinamica(&pila));
 				printf("\n\tRegla 18: asignacion -> ID ASIG expresion\n");
 			}
 			;
 
 decision:
 		IF P_A condicion P_C L_A bloque L_C {
-			nodo * ret = NULL;
-			desapilarDinamica(&pila, &ret);
-			bloquePtr = ret;
-			desapilarDinamica(&pila, &ret);
-			decisionPtr = crearNodo("IF", ret, bloquePtr);
+			bloquePtr = desapilarDinamica(&pila);
+			decisionPtr = crearNodo("IF", desapilarDinamica(&pila), bloquePtr);
 			printf("\n\tRegla 19: decision -> IF P_A condicion P_C L_A bloque L_C\n");
 		}
-		|IF P_A condicion P_C L_A bloque L_C ELSE L_A bloque L_C {printf("\n\tRegla 20: decision -> IF P_A condicion P_C L_A bloque L_C ELSE L_A bloque L_C\n");}
+		|IF P_A condicion P_C L_A bloque L_C ELSE L_A bloque L_C {
+            bloquePtr = desapilarDinamica(&pila);
+            decisionPtr = crearNodo("IF", desapilarDinamica(&pila), crearNodo("CUERPO", desapilarDinamica(&pila), bloquePtr));
+            printf("\n\tRegla 20: decision -> IF P_A condicion P_C L_A bloque L_C ELSE L_A bloque L_C\n");}
 		;
 
 iteracion:
-			WHILE P_A condicion P_C L_A bloque L_C {printf("\n\tRegla 21: iteracion -> WHILE P_A condicion P_C L_A bloque L_C\n");}
+			WHILE P_A condicion P_C L_A bloque L_C {
+                bloquePtr = desapilarDinamica(&pila);
+                iteracionPtr = crearNodo("WHILE", desapilarDinamica(&pila), bloquePtr);
+                printf("\n\tRegla 21: iteracion -> WHILE P_A condicion P_C L_A bloque L_C\n");}
 			;
 			
 condicion:
@@ -229,19 +240,34 @@ condicion:
 			printf("\n\tRegla 22: condicion -> comparacion\n");
 		}
 		|comparacion AND comparacion {
+            condicionPtr = crearNodo("AND", desapilarDinamica(&pila), desapilarDinamica(&pila));
+            apilarDinamica(&pila, &condicionPtr);
 			printf("\n\tRegla 23: condicion -> comparacion AND comparacion\n");
 		}
 		|comparacion OR comparacion {
+            condicionPtr = crearNodo("OR", desapilarDinamica(&pila), desapilarDinamica(&pila));
+            apilarDinamica(&pila, &condicionPtr);
 			printf("\n\tRegla 24: condicion -> comparacion OR comparacion\n");
 		}
 		|NOT comparacion {
+            strcpy(comparacionPtr->dato, comparadorOpuesto(comparacionPtr));
+            condicionPtr = comparacionPtr;
 			printf("\n\tRegla 25: condicion -> NOT comparacion\n");
 		}
 		;
 
 comparacion:
-			expresion comparador expresion {printf("\n\tRegla 26: comparacion -> expresion comparador expresion\n");}
-			|P_A expresion comparador expresion P_C {printf("\n\tRegla 27: comparacion -> P_A expresion comparador expresion P_C\n");}
+			expresion comparador expresion {
+                //validarComparacion();
+                comparacionPtr = crearNodo(comparadorPtr->dato, desapilarDinamica(&pila), desapilarDinamica(&pila));
+                apilarDinamica(&pila,&comparacionPtr);
+                printf("\n\tRegla 26: comparacion -> expresion comparador expresion\n");
+            }
+			|P_A expresion comparador expresion P_C {
+                comparacionPtr = crearNodo(comparadorPtr->dato, desapilarDinamica(&pila), desapilarDinamica(&pila));
+                apilarDinamica(&pila,&comparacionPtr);
+                printf("\n\tRegla 27: comparacion -> P_A expresion comparador expresion P_C\n");
+            }
 			;
 
 comparador:
@@ -291,15 +317,20 @@ salida:
 
 expresion:
 			termino {
-				expresionPtr = terminoPtr;
+                apilarDinamica(&pila, &terminoPtr);
+				//expresionPtr = terminoPtr;
 				printf("\n\tRegla 37: expresion -> termino\n");
 			}
 			|expresion OP_SUMA termino {
-				expresionPtr = crearNodo("+", expresionPtr, terminoPtr);
+                nodo* aux = crearNodo("+", desapilarDinamica(&pila), terminoPtr);
+                apilarDinamica(&pila, &aux);
+				//expresionPtr = crearNodo("+", expresionPtr, terminoPtr);
 				printf("\n\tRegla 38: expresion -> expresion OP_SUMA termino\n");
 			}
 			|expresion OP_RESTA termino {
-				expresionPtr = crearNodo("-", expresionPtr, terminoPtr);
+                nodo* aux = crearNodo("-", desapilarDinamica(&pila), terminoPtr);
+				apilarDinamica(&pila, &aux);
+                //expresionPtr = crearNodo("-", expresionPtr, terminoPtr);
 				printf("\n\tRegla 39: expresion -> expresion OP_RESTA termino\n");
 			}
 			;
@@ -345,7 +376,8 @@ factor:
 			printf("\n\tRegla 48: factor -> CTE_HEXA\n");
 		}
 		|P_A expresion P_C {
-			factorPtr = expresionPtr;
+			factorPtr = desapilarDinamica(&pila);
+            //factorPtr = expresionPtr;
 			//nodo *ret = NULL;
 			//desapilarDinamica(&pila, &ret);
 			printf("\n\tRegla 49: factor -> P_A expresion P_C\n");
@@ -555,7 +587,7 @@ void crear_pila(t_pila *pp)
     *pp = NULL;
 }
 
-int apilarDinamica(t_pila *PP, const t_dato *pd)
+int apilarDinamica(t_pila *PP, t_dato *pd)
 {
     t_nodo *pnue= (t_nodo *)malloc(sizeof(t_nodo));
     if(!pnue)
@@ -568,19 +600,20 @@ int apilarDinamica(t_pila *PP, const t_dato *pd)
 
 }
 
-int desapilarDinamica(t_pila *pp, t_dato *pd)
+nodo * desapilarDinamica(t_pila *pp)
 {
     t_nodo *aux;
+    
     if(*pp==NULL)
         return 0;
 
     aux = *pp;
-    *pd = aux->dato; //== (*pp)->dato
+    nodo * pd = aux->dato; //== (*pp)->dato
     *pp = aux->psig;
     free(aux);
-    return 1;
-
+    return pd;
 }
+
 
 int verTopeDinamica(t_pila *PP, t_dato *pd)
 {
@@ -652,4 +685,66 @@ int esHoja(nodo *hoja) {
     return hoja->hijoIzq == NULL && hoja->hijoDer == NULL;
 }
 
+
+void llenarGragh(nodo* padre, FILE *arch, int numNodo) {
+    if(padre == NULL) {
+        return;
+    }
+    int numHI = numNodo*2+1;
+    int numHD = numNodo*2+2;
+    
+    if(padre->hijoIzq) {
+        fprintf(arch, "\t\"%s@%d\" -> \"%s@%d\"\n", padre->dato, numNodo, padre->hijoIzq->dato, numHI);
+    }
+    if(padre->hijoDer) {
+        fprintf(arch, "\t\"%s@%d\" -> \"%s@%d\"\n", padre->dato, numNodo, padre->hijoDer->dato, numHD);
+    }
+    llenarGragh(padre->hijoIzq, arch, numHI);
+    llenarGragh(padre->hijoDer, arch, numHD);
+    return;
+}
+
+void escribirGragh(nodo* padre) {
+    FILE *archivo;
+
+	archivo = fopen("gragh.dot", "w");
+	if (archivo == NULL) {
+		return;
+	}
+    //escribir la plantilla para dibujar el grafo
+    fprintf(archivo, "%s\n", "digraph G {");
+    llenarGragh(padre, archivo, 0);
+    fprintf(archivo, "%s", "}");
+    
+    fclose(archivo);
+    liberarMemoria(padre);
+    return;
+}
+
 /***************************/
+char * comparadorOpuesto(nodo* raiz){
+    
+    if(strcmp(raiz->dato, "==") == 0) {
+        return "!=";
+    } else if (strcmp(raiz->dato, "!=") == 0) {
+        return "==";
+    } else if (strcmp(raiz->dato, "<") == 0) {
+        return ">=";
+    } else if (strcmp(raiz->dato, "<=") == 0) {
+        return ">";
+    } else if (strcmp(raiz->dato, ">") == 0) {
+        return "<=";
+    } else if (strcmp(raiz->dato, ">=") == 0) {
+        return "<";
+    }
+}
+
+void liberarMemoria(nodo* padre) {
+    if(padre == NULL) {
+        return;
+    }
+    liberarMemoria(padre->hijoDer);
+    liberarMemoria(padre->hijoIzq);
+    free(padre);
+    return;
+}
