@@ -71,6 +71,7 @@ void llenarGragh(nodo* padre, FILE *arch, int numNodo);
 void liberarMemoria(nodo* padre);
 char * comparadorOpuesto(nodo* );
 //void validarComparacion();
+
 /***************************************************/
 
 nodo* bloquePtr = NULL;
@@ -399,6 +400,8 @@ lista_constantes:
 
 %%
 
+///////////////////////////////////////////////////////////////////////////////
+
 int main(int argc, char* argv[])
 {
     if((yyin = fopen(argv[1], "rt")) == NULL)
@@ -685,6 +688,7 @@ int esHoja(nodo *hoja) {
     return hoja->hijoIzq == NULL && hoja->hijoDer == NULL;
 }
 
+/***************************/
 
 void llenarGragh(nodo* padre, FILE *arch, int numNodo) {
     if(padre == NULL) {
@@ -706,8 +710,7 @@ void llenarGragh(nodo* padre, FILE *arch, int numNodo) {
 
 void escribirGragh(nodo* padre) {
     FILE *archivo;
-
-	archivo = fopen("gragh.dot", "w");
+	archivo = fopen("intermedia.dot", "w");
 	if (archivo == NULL) {
 		return;
 	}
