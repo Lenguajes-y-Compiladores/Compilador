@@ -62,7 +62,7 @@ nodo* crearHoja(const char*);
 void crear_pila(t_pila *pp);
 int apilarDinamica(t_pila *, t_dato *);
 nodo * desapilarDinamica(t_pila *);
-int verTopeDinamica(t_pila *,t_dato *);
+nodo * verTopeDinamica(t_pila *PP);
 void escribirArbol(nodo *);
 int inOrden(FILE *, struct nodo*);
 int esHoja(nodo *);
@@ -320,19 +320,25 @@ salida:
 
 expresion:
 			termino {
-                apilarDinamica(&pila, &terminoPtr);
+                if(terminoPtr != verTopeDinamica(&pila))
+                    apilarDinamica(&pila, &terminoPtr);
+                
 				//expresionPtr = terminoPtr;
 				printf("\n\tRegla 37: expresion -> termino\n");
 			}
 			|expresion OP_SUMA termino {
+                desapilarDinamica(&pila);
                 expresionPtr = crearNodo("+", desapilarDinamica(&pila), terminoPtr);
+                //expresionPtr = crearNodo("+", desapilarDinamica(&pila), terminoPtr);
                 //nodo* aux = crearNodo("+", desapilarDinamica(&pila), terminoPtr);
                 apilarDinamica(&pila, &expresionPtr);
 				//expresionPtr = crearNodo("+", expresionPtr, terminoPtr);
 				printf("\n\tRegla 38: expresion -> expresion OP_SUMA termino\n");
 			}
 			|expresion OP_RESTA termino {
+                desapilarDinamica(&pila);
                 expresionPtr = crearNodo("-", desapilarDinamica(&pila), terminoPtr);
+                //expresionPtr = crearNodo("-", desapilarDinamica(&pila), terminoPtr);
                 //nodo* aux = crearNodo("-", desapilarDinamica(&pila), terminoPtr);
 				apilarDinamica(&pila, &expresionPtr);
                 //expresionPtr = crearNodo("-", expresionPtr, terminoPtr);
@@ -343,15 +349,16 @@ expresion:
 termino:
 		factor {
 			terminoPtr = factorPtr;
+            apilarDinamica(&pila, &terminoPtr);
 			printf("\n\tRegla 40: termino -> factor\n");
 		}
 		|termino OP_MULT factor {
-			terminoPtr = crearNodo("*", terminoPtr, factorPtr);
+			terminoPtr = crearNodo("*", desapilarDinamica(&pila), factorPtr);
             apilarDinamica(&pila, &terminoPtr);
 			printf("\n\tRegla 41: termino -> termino OP_MULT factor\n");
 		}
 		|termino OP_DIV factor {
-			terminoPtr = crearNodo("/", terminoPtr, factorPtr);
+			terminoPtr = crearNodo("/", desapilarDinamica(&pila), factorPtr);
             apilarDinamica(&pila, &terminoPtr);
 			printf("\n\tRegla 42: termino -> termino OP_DIV factor\n");
 		}
@@ -402,7 +409,7 @@ factor:
             
 			factorPtr = desapilarDinamica(&pila);
             
-            apilarDinamica(&pila, &factorPtr);
+            //apilarDinamica(&pila, &factorPtr);
             //factorPtr = expresionPtr;
 			//nodo *ret = NULL;
 			//desapilarDinamica(&pila, &ret);
@@ -410,13 +417,15 @@ factor:
 		}
 		|contar {
 			factorPtr = contarPtr;
+            //apilarDinamica(&pila, &factorPtr);
 			printf("\n\tRegla 50: factor -> contar\n");
 		}
 		;
 
 contar:
-		CONTAR P_A expresion { pivot = desapilarDinamica(&pila); } PyC C_A lista_constantes C_C P_C {
-			contarPtr = desapilarDinamica(&pila);
+		CONTAR P_A expresion { pivot = desapilarDinamica(&pila);} PyC C_A lista_constantes C_C P_C {
+			contarPtr = listaContantesPtr;
+            //contarPtr = desapilarDinamica(&pila);
 			printf("\n\tRegla 51: contar -> CONTAR P_A expresion PyC C_A lista_constantes C_C P_C\n");
 		}
 		;
@@ -424,12 +433,12 @@ contar:
 lista_constantes:
 				factor {
 					listaContantesPtr = crearNodo("CONTAR", crearNodo("IF", crearNodo("==", pivot, factorPtr), crearNodo("=", crearHoja("@CONT"), crearNodo("+", crearHoja("@CONT"), crearHoja("1")))), NULL);
-					apilarDinamica(&pila, &listaContantesPtr);
+					//apilarDinamica(&pila, &listaContantesPtr);
 					printf("\n\tRegla 52: lista_constantes -> factor\n");
 				}
 				|lista_constantes COMA factor {
 					listaContantesPtr = crearNodo("CONTAR", crearNodo("IF", crearNodo("==", pivot, factorPtr), crearNodo("=", crearHoja("@CONT"), crearNodo("+", crearHoja("@CONT"), crearHoja("1")))), listaContantesPtr);
-					apilarDinamica(&pila, &listaContantesPtr);
+					//apilarDinamica(&pila, &listaContantesPtr);
 					printf("\n\tRegla 53: lista_constantes -> lista_constantes COMA factor\n");
 				}
 				;
@@ -482,9 +491,8 @@ int armarTS (char* tipo, char* nombre){
     }/********/
     if(nombre[0] == '@')
     {
-		strcpy(lexema,nombre);
-		strcpy(tablaSimbolos[puntero_array].tipo, tipo);
-		
+        strcpy(lexema,nombre);
+        strcpy(tablaSimbolos[puntero_array].tipo, tipo);
     }/******/
 	
 	if(strcmp(tipo,"ID")==0){
@@ -660,13 +668,13 @@ nodo * desapilarDinamica(t_pila *pp)
 }
 
 
-int verTopeDinamica(t_pila *PP, t_dato *pd)
+nodo * verTopeDinamica(t_pila *PP)
 {
 
     if(!*PP)
         return 0;
-    *pd=(*PP)->dato;
-
+    nodo * pd = (*PP)->dato;
+    return pd;
 }
 
 void escribirArbol(nodo *padre) {
