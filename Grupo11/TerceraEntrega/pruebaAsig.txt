@@ -1,0 +1,4 @@
+DIM < a,b> AS < Integer,Integer>
+
+a=b*2+1;
+b=2*a+5;

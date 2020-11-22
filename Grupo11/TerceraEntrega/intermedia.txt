@@ -1,0 +1,37 @@
+@STDOUT  PUT  Prueba.txt LyC Tema 1!  
+@STDOUT  PUT  Ingrese entero para actual:   
+actual  GET  @STDIN  
+contador  =  0  
+02.5  +  41648  
+suma  =  +  
+contador  <=  92  
+contador  +  1  
+contador  =  +  
+contador  /  0.342  
+actual  *  contador  
+*  ==  4  
+@CONT  +  1  
+@CONT  =  +  
+actual  *  contador  
+*  ==  52  
+@CONT  +  1  
+@CONT  =  +  
+actual  *  contador  
+*  ==  2  
+@CONT  +  1  
+@CONT  =  +  
+actual  *  contador  
+*  ==  256  
+@CONT  +  1  
+@CONT  =  +  
+contador  *  CONTAR  
+actual  =  +  
+suma  +  actual  
+suma  =  +  
+@STDOUT  PUT  La suma es:   
+@STDOUT  PUT  suma  
+actual  >  2  
+actual  <>  0  
+@STDOUT  PUT  actual mayor a 2 y dist a 0  
+actual  <  58  
+@STDOUT  PUT  no es mayor que 2  
