@@ -9,11 +9,16 @@ MAXTEXTSIZE equ 100
 
 .DATA
 
-a                               	DD	?
-b                               	DD	?
-_2                              	DD	2
-_1                              	DD	1
-_5                              	DD	5
+contador                        	DD	?
+promedio                        	DD	?
+actual                          	DD	?
+suma                            	DD	?
+_0b10                           	DD	2
+_0                              	DD	0
+_actual_mayor_a_2_y_dist_a_0    	DB	"actual mayor a 2 y dist a ",'$', 27 dup (?)
+@STDOUT                         	DB	",'$',  dup (?)
+_0b111010                       	DD	58
+_no_es_mayor_que_2              	DB	"no es mayor que ",'$', 17 dup (?)
 
 .CODE
 
@@ -80,26 +85,34 @@ MOV es,ax
 FINIT
 FFREE
 
-fld b
 fild _2
-fmul
-fstp @aux1
-fld @aux1
-fild _1
-fadd
-fstp @aux2
-fld @aux2
-fstp a
-fild _2
-fld a
-fmul
-fstp @aux3
-fld @aux3
-fild _5
-fadd
-fstp @aux4
-fld @aux4
-fstp b
+fld actual
+fcom
+fstsw ax
+sahf
+JNBE startIf1
+fild _0
+fld actual
+fcom
+fstsw ax
+sahf
+JE else1
+startIf1:
+PutString _actual mayor a 2 y dist a 0
+newLine 1
+JMP endif1
+else1:
+fild _58
+fld actual
+fcom
+fstsw ax
+sahf
+JNB endif2
+startIf2:
+PutString _no es mayor que 2
+newLine 1
+endif2:
+endif1:
 
 liberar:
 	ffree

@@ -1041,7 +1041,7 @@ int esComparacion(const char *comparador) {
     strcmp(comparador, "<") == 0 ||
     strcmp(comparador, "<=") == 0 ||
     strcmp(comparador, "==") == 0 ||
-    strcmp(comparador, "!=") == 0;
+    strcmp(comparador, "<>") == 0;
 }
 
 char* obtenerSalto() {
@@ -1112,7 +1112,7 @@ char* obtenerInstruccionAritmetica(const char *operador) {
 }
 
 char *cargaEntero(const nodo * hijo) {
-    if (strcmp(hijo->tipo, "Cte_Entera")==0) {
+    if (strcmp(hijo->tipo, "Cte_Entera")==0 || strcmp(hijo->tipo, "int")==0 || strcmp(hijo->tipo, "Cte_Binario")==0 || strcmp(hijo->tipo, "Cte_Hexadecimal")==0) {
         return "i";
     }
     return "";

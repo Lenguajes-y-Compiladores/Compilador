@@ -1,6 +1,11 @@
 NOMBRE                              TIPO                 VALOR                                         LONGITUD            
-a                                   int                                                                                    
-b                                   int                                                                                    
-_2                                  Cte_Entera           2                                                                 
-_1                                  Cte_Entera           1                                                                 
-_5                                  Cte_Entera           5                                                                 
+contador                            int                                                                                    
+promedio                            float                                                                                  
+actual                              float                                                                                  
+suma                                float                                                                                  
+_0b10                               Cte_Binario          2                                                                 
+_0                                  Cte_Entera           0                                                                 
+_actual mayor a 2 y dist a 0        Cte_String           actual mayor a 2 y dist a 0                   27                  
+@STDOUT                             Cte_String                                                                             
+_0b111010                           Cte_Binario          58                                                                
+_no es mayor que 2                  Cte_String           no es mayor que 2                             17                  

@@ -1,5 +1,5 @@
 DIM < a> AS < Integer >
 
-if (a > 0b10){
+if (a > 0b10 OR a<100){
 	PUT "a es mayor";
 }

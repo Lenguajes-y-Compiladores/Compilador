@@ -1,6 +1,5 @@
-b  *  _2  
-*  +  _1  
-a  =  +  
-_2  *  a  
-*  +  _5  
-b  =  +  
+actual  >  _2  
+actual  <>  _0  
+@STDOUT  PUT  actual mayor a 2 y dist a 0  
+actual  <  _58  
+@STDOUT  PUT  no es mayor que 2  
