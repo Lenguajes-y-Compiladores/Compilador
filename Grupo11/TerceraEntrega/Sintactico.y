@@ -365,7 +365,7 @@ salida:
 		}
 		|PUT CTE_STRING {
             
-			salidaPtr = crearNodo("PUT", crearHoja("@STDOUT", "Cte_String"), crearHoja($2, "Cte_String"));
+			salidaPtr = crearNodo("PUT", crearHoja("@STDOUT", "Cte_Entera"), crearHoja(conGuion(nombreAssembler($2)), "Cte_String"));
 			printf("\n\tRegla 36: salida -> PUT CTE_STRING\n");
 		}
 		;
@@ -425,35 +425,35 @@ factor:
 			printf("\n\tRegla 44: factor -> CTE_ENTERA\n");
 		}
 		|CTE_REAL {
-			factorPtr = crearHoja(conGuion($1),"Cte_Real");
+			factorPtr = crearHoja(conGuion(nombreAssembler($1)),"Cte_Real");
 			printf("\n\tRegla 45: factor -> CTE_REAL\n");
 		}
 		|CTE_STRING {
-			factorPtr = crearHoja(conGuion($1),"Cte_String");
+			factorPtr = crearHoja(conGuion(nombreAssembler($1)),"Cte_String");
 			printf("\n\tRegla 46: factor -> CTE_STRING\n");
 		}
 		|CTE_BINARIA {
-            char nombre [25];
+            /*char nombre [25];
             nombre[0] = '_';
             nombre[1] = '\0';
             int pos = buscar_TS(strcat(nombre,$1));
             if(pos == -1){
                 printf("\nNo encontrado\n");
                 exit(1);
-            }
-			factorPtr = crearHoja(conGuion(tablaSimbolos[pos].valor), "Cte_Binario");
+            }*/
+			factorPtr = crearHoja(conGuion($1), "Cte_Binario");
 			printf("\n\tRegla 47: factor -> CTE_BINARIA\n");
 		}
 		|CTE_HEXA {
-            char nombre [25];
+            /*char nombre [25];
             nombre[0] = '_';
             nombre[1] = '\0';
             int pos = buscar_TS(strcat(nombre,$1));
             if(pos == -1){
                 printf("\nNo encontrado\n");
                 exit(1);
-            }
-			factorPtr = crearHoja(conGuion(tablaSimbolos[pos].valor),"Cte_Hexadecimal");
+            }*/
+			factorPtr = crearHoja(conGuion($1),"Cte_Hexadecimal");
 			printf("\n\tRegla 48: factor -> CTE_HEXA\n");
 		}
 		|P_A expresion P_C {
@@ -900,13 +900,15 @@ void generarAssembler(nodo * raiz){
     
     ///CODIGO
     fprintf(fp,"\n.CODE\n");
+    if(asignacionString == 1){
+        // funciones para manejo de entrada/salida y cadenas
+        fprintf(fp,"\nstrlen proc\n\tmov bx, 0\n\tstrl01:\n\tcmp BYTE PTR [si+bx],'$'\n\tje strend\n\tinc bx\n\tjmp strl01\n\tstrend:\n\tret\nstrlen endp\n");
+        fprintf(fp,"\ncopiar proc\n\tcall strlen\n\tcmp bx , MAXTEXTSIZE\n\tjle copiarSizeOk\n\tmov bx , MAXTEXTSIZE\n\tcopiarSizeOk:\n\tmov cx , bx\n\tcld\n\trep movsb\n\tmov al , '$'\n\tmov byte ptr[di],al\n\tret\ncopiar endp\n");
+        fprintf(fp,"\nconcat proc\n\tpush ds\n\tpush si\n\tcall strlen\n\tmov dx , bx\n\tmov si , di\n\tpush es\n\tpop ds\n\tcall strlen\n\tadd di, bx\n\tadd bx, dx\n\tcmp bx , MAXTEXTSIZE\n\tjg concatSizeMal\n\tconcatSizeOk:\n\tmov cx , dx\n\tjmp concatSigo\n\tconcatSizeMal:\n\tsub bx , MAXTEXTSIZE\n\tsub dx , bx\n\tmov cx , dx\n\tconcatSigo:\n\tpush ds\n\tpop es\n\tpop si\n\tpop ds\n\tcld\n\trep movsb\n\tmov al , '$'\n\tmov byte ptr[di],al\n\tret\nconcat endp\n");
+    }
     
-    // funciones para manejo de entrada/salida y cadenas
-	fprintf(fp,"\nstrlen proc\n\tmov bx, 0\n\tstrl01:\n\tcmp BYTE PTR [si+bx],'$'\n\tje strend\n\tinc bx\n\tjmp strl01\n\tstrend:\n\tret\nstrlen endp\n");
-	fprintf(fp,"\ncopiar proc\n\tcall strlen\n\tcmp bx , MAXTEXTSIZE\n\tjle copiarSizeOk\n\tmov bx , MAXTEXTSIZE\n\tcopiarSizeOk:\n\tmov cx , bx\n\tcld\n\trep movsb\n\tmov al , '$'\n\tmov byte ptr[di],al\n\tret\ncopiar endp\n");
-	fprintf(fp,"\nconcat proc\n\tpush ds\n\tpush si\n\tcall strlen\n\tmov dx , bx\n\tmov si , di\n\tpush es\n\tpop ds\n\tcall strlen\n\tadd di, bx\n\tadd bx, dx\n\tcmp bx , MAXTEXTSIZE\n\tjg concatSizeMal\n\tconcatSizeOk:\n\tmov cx , dx\n\tjmp concatSigo\n\tconcatSizeMal:\n\tsub bx , MAXTEXTSIZE\n\tsub dx , bx\n\tmov cx , dx\n\tconcatSigo:\n\tpush ds\n\tpop es\n\tpop si\n\tpop ds\n\tcld\n\trep movsb\n\tmov al , '$'\n\tmov byte ptr[di],al\n\tret\nconcat endp\n");
     
-    fprintf(fp, "\nMOV AX,@DATA\nMOV DS,AX\nMOV es,ax\nFINIT\nFFREE\n\n");
+    fprintf(fp, "\nSTART:\nMOV AX,@DATA\nMOV DS,AX\nMOV es,ax\nFINIT\nFFREE\n\n");
     
     ///INSTRUCCIONES
     recorrerArbolParaAssembler(fp, raiz);
@@ -926,7 +928,7 @@ void generarAssembler(nodo * raiz){
 char * nombreAssembler (char * nombre){
     char *ini=nombre;
     
-    while((ini= strchr(nombre,' ')) != NULL || (ini= strchr(nombre,'.'))!= NULL)
+    while((ini= strchr(nombre,' ')) != NULL || (ini= strchr(nombre,'.'))!= NULL || (ini= strchr(nombre,'!')) != NULL || (ini= strchr(nombre,':')) != NULL || (ini= strchr(nombre,' ')) != NULL)
         *ini = '_';
     return nombre;    
 }
@@ -936,7 +938,9 @@ char * ponerComillas(char * valor){
     res[0]= '"';
     res[1]='\0';
     strcat(res, valor);
+    //strcat(res, res[0]);
     res[strlen(res)-1] = '"';
+  
     return strcpy(valor,res);
 }
 char * verSiVaInterrogacion(char *valor) {
@@ -1194,12 +1198,12 @@ void  recorrerArbolParaAssembler(FILE * fp, nodo* raiz){
 
 char* obtenerInstruccionGet(nodo* nodo) {
     // Solo se permite get para IDs
-    if (strcmp(nodo->tipo, "int"))
+    if (strcmp(nodo->tipo, "int")==0)
         return "GetInt";
-    if (strcmp(nodo->tipo, "float"))
+    if (strcmp(nodo->tipo, "float")==0)
         return "GetFloat";
-    if (strcmp(nodo->tipo,"string"))
-        return "getString";
+    if (strcmp(nodo->tipo,"string")==0)
+        return "GetString";
 }
 
 
@@ -1209,13 +1213,13 @@ char* obtenerInstruccionPut(nodo* nodo) {
     strcpy(tipoAux, nodo->tipo);
 
     if (strcmp(tipoAux, "int")==0) {
-        sprintf(instruccionPut, "PutInteger %s", nodo);
+        sprintf(instruccionPut, "DisplayInteger %s", nodo);
     } else if (strcmp(tipoAux, "float")==0) {
-        sprintf(instruccionPut, "PutFloat %s,2", nodo);
+        sprintf(instruccionPut, "DisplayFloat %s,2", nodo);
     } else if (strcmp(tipoAux, "string")==0) {
-        sprintf(instruccionPut, "PutString %s", nodo);
+        sprintf(instruccionPut, "DisplayString %s", nodo);
     } else if (strcmp(tipoAux, "Cte_String")==0) {
-        sprintf(instruccionPut, "PutString %s", conGuion(nodo->dato));
+        sprintf(instruccionPut, "DisplayString %s", nodo->dato);
     }
     return instruccionPut;
 }

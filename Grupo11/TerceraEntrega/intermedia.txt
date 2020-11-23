@@ -1,5 +1,18 @@
-actual  >  _2  
+@STDOUT  PUT  _Prueba_txt_LyC_Tema_1_  
+@STDOUT  PUT  _Ingrese_entero_para_actual  
+actual  GET  @STDIN  
+contador  =  _0  
+_02_5  +  _0xA2B0  
+suma  =  +  
+contador  <=  _92  
+contador  +  _1  
+contador  =  +  
+suma  +  actual  
+suma  =  +  
+@STDOUT  PUT  _La_suma_es_  
+@STDOUT  PUT  suma  
+actual  >  _0b10  
 actual  <>  _0  
-@STDOUT  PUT  actual mayor a 2 y dist a 0  
-actual  <  _58  
-@STDOUT  PUT  no es mayor que 2  
+@STDOUT  PUT  _actual_mayor_a_2_y_dist_a_0  
+actual  <  _0b111010  
+@STDOUT  PUT  _no_es_mayor_que_2  
