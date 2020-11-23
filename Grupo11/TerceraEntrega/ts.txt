@@ -3,22 +3,5 @@ contador                            int
 promedio                            float                                                                                  
 actual                              float                                                                                  
 suma                                float                                                                                  
-_Prueba.txt LyC Tema 1!             Cte_String           Prueba.txt LyC Tema 1!                        22                  
-@STDOUT@STDOUT                      int                                                                                    
-_Ingrese entero para actual:        Cte_String           Ingrese entero para actual:                   28                  
-@STDIN@STDIN                        int                                                                                    
-_0                                  Cte_Entera           0                                                                 
 _02.5                               Cte_Real             02.5                                                              
-_0xA2B0                             Cte_Hexadecimal      41648                                                             
-_92                                 Cte_Entera           92                                                                
-_1                                  Cte_Entera           1                                                                 
-_0.342                              Cte_Real             0.342                                                             
-_256                                Cte_Entera           256                                                               
-@CONT@CONT                          int                                                                                    
-_0b10                               Cte_Binario          2                                                                 
-_52                                 Cte_Entera           52                                                                
-_4                                  Cte_Entera           4                                                                 
-_La suma es:                        Cte_String           La suma es:                                   12                  
-_actual mayor a 2 y dist a 0        Cte_String           actual mayor a 2 y dist a 0                   27                  
-_0b111010                           Cte_Binario          58                                                                
-_no es mayor que 2                  Cte_String           no es mayor que 2                             17                  
+_3                                  Cte_Entera           3                                                                 
