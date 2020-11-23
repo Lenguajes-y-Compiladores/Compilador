@@ -421,15 +421,15 @@ factor:
 			printf("\n\tRegla 43: factor -> ID\n");
 		}
 		|CTE_ENTERA {
-			factorPtr = crearHoja($1,"Cte_Entera");
+			factorPtr = crearHoja(conGuion($1),"Cte_Entera");
 			printf("\n\tRegla 44: factor -> CTE_ENTERA\n");
 		}
 		|CTE_REAL {
-			factorPtr = crearHoja($1,"Cte_Real");
+			factorPtr = crearHoja(conGuion($1),"Cte_Real");
 			printf("\n\tRegla 45: factor -> CTE_REAL\n");
 		}
 		|CTE_STRING {
-			factorPtr = crearHoja($1,"Cte_String");
+			factorPtr = crearHoja(conGuion($1),"Cte_String");
 			printf("\n\tRegla 46: factor -> CTE_STRING\n");
 		}
 		|CTE_BINARIA {

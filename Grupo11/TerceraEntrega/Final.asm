@@ -81,21 +81,21 @@ FINIT
 FFREE
 
 fld b
-fild 2
+fild _2
 fmul
 fstp @aux1
 fld @aux1
-fild 1
+fild _1
 fadd
 fstp @aux2
 fld @aux2
 fstp a
-fild 2
+fild _2
 fld a
 fmul
 fstp @aux3
 fld @aux3
-fild 5
+fild _5
 fadd
 fstp @aux4
 fld @aux4
