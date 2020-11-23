@@ -1141,7 +1141,9 @@ void  recorrerArbolParaAssembler(FILE * fp, nodo* raiz){
             nodoActualWhile = 1;
             esWhile = 1;
             apilarEtiqueta(ETIQUETA_WHILE);
+            
             fprintf(fp, "condicionWhile%d:\n", verTopePilaEtiqueta(ETIQUETA_WHILE));
+            
             if (strcmp(raiz->hijoIzq->dato, "OR") == 0) {
                 condicionOR = 1;
             }
@@ -1154,10 +1156,10 @@ void  recorrerArbolParaAssembler(FILE * fp, nodo* raiz){
         if(nodoActualIf) {
             fprintf(fp, "startIf%d:\n", verTopePilaEtiqueta(ETIQUETA_IF));
         }
-
-        if(strcmp(raiz->dato, "CUERPO") == 0) {
+        if(tieneElse && strcmp(raiz->dato, "CUERPO") == 0) {
             fprintf(fp, "JMP endif%d\n", verTopePilaEtiqueta(ETIQUETA_IF));
             fprintf(fp, "else%d:\n", verTopePilaEtiqueta(ETIQUETA_IF));
+        
         }
         
         if(nodoActualWhile) {

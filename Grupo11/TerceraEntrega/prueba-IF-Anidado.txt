@@ -1,6 +1,6 @@
 DIM < contador,promedio,actual,suma> AS < Integer,Float,Float,Float >
 
-if (actual > 0b10 or actual <> 0){
+if (actual > 0b10 and actual <> 0){
 	PUT "actual mayor a 2 y dist a 0";
 }
 Else

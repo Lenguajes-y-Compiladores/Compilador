@@ -90,7 +90,7 @@ fld actual
 fcom
 fstsw ax
 sahf
-JNBE startIf1
+JNA else1
 fild _0
 fld actual
 fcom

@@ -1,5 +1,6 @@
 DIM < contador> AS < Integer >
 
 while (contador <= 92) {
+	PUT "Hola mundo!";
 	contador = contador + 1;
 }
