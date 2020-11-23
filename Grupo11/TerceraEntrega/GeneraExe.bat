@@ -6,7 +6,7 @@ c:\MinGW\bin\gcc.exe lex.yy.c y.tab.c -o Grupo11.exe
 pause
 pause
 
-Grupo11.exe pruebaAux.txt
+Grupo11.exe pruebaAsig.txt
 
 pause
 dot -Tpng intermedia.dot -o intermedia.png

@@ -1,7 +1,6 @@
 NOMBRE                              TIPO                 VALOR                                         LONGITUD            
-contador                            int                                                                                    
-promedio                            float                                                                                  
-actual                              float                                                                                  
-suma                                float                                                                                  
-_02.5                               Cte_Real             02.5                                                              
-_3                                  Cte_Entera           3                                                                 
+a                                   int                                                                                    
+b                                   int                                                                                    
+_2                                  Cte_Entera           2                                                                 
+_1                                  Cte_Entera           1                                                                 
+_5                                  Cte_Entera           5                                                                 

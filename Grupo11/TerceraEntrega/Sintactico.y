@@ -115,7 +115,7 @@ int topePilaWhile = 0;
 int topePilaIf = 0;
 
 int asignacionString= 0;
-char instruccionDisplay[50];
+char instruccionPut[50];
 
 ////funciones
 
@@ -133,7 +133,7 @@ int esComparacion(const char * comparador);
 char *cargaEntero(const nodo * hijo);
 char* obtenerSalto();
 int pedirAux(char* tipo);
-char* obtenerInstruccionDisplay(nodo* nodo);
+char* obtenerInstruccionPut(nodo* nodo);
 char* obtenerInstruccionGet(nodo* nodo);
 char* obtenerInstruccionComparacion(const char *comparador);
 void  recorrerArbolParaAssembler(FILE * fp, nodo* raiz);
@@ -359,6 +359,7 @@ salida:
 		PUT ID {
             char tipoAux [15];
             strcpy(tipoAux,obtenerTipoTS($2));
+            printf("\nTIPO ID: %s\n", tipoAux);
 			salidaPtr = crearNodo("PUT", crearHoja("@STDOUT", tipoAux), crearHoja($2, tipoAux));
 			printf("\n\tRegla 35: salida -> PUT ID\n");
 		}
@@ -380,10 +381,7 @@ expresion:
 			|expresion OP_SUMA termino {
                 desapilarDinamica(&pila);
                 expresionPtr = crearNodo("+", desapilarDinamica(&pila), terminoPtr);
-                //expresionPtr = crearNodo("+", desapilarDinamica(&pila), terminoPtr);
-                //nodo* aux = crearNodo("+", desapilarDinamica(&pila), terminoPtr);
                 apilarDinamica(&pila, &expresionPtr);
-				//expresionPtr = crearNodo("+", expresionPtr, terminoPtr);
 				printf("\n\tRegla 38: expresion -> expresion OP_SUMA termino\n");
 			}
 			|expresion OP_RESTA termino {
@@ -423,15 +421,15 @@ factor:
 			printf("\n\tRegla 43: factor -> ID\n");
 		}
 		|CTE_ENTERA {
-			factorPtr = crearHoja(conGuion($1),"Cte_Entera");
+			factorPtr = crearHoja($1,"Cte_Entera");
 			printf("\n\tRegla 44: factor -> CTE_ENTERA\n");
 		}
 		|CTE_REAL {
-			factorPtr = crearHoja(conGuion($1),"Cte_Real");
+			factorPtr = crearHoja($1,"Cte_Real");
 			printf("\n\tRegla 45: factor -> CTE_REAL\n");
 		}
 		|CTE_STRING {
-			factorPtr = crearHoja(conGuion($1),"Cte_String");
+			factorPtr = crearHoja($1,"Cte_String");
 			printf("\n\tRegla 46: factor -> CTE_STRING\n");
 		}
 		|CTE_BINARIA {
@@ -513,7 +511,7 @@ int main(int argc, char* argv[])
 			printf("Error al crear el archivo de la tabla de simbolos\n");
     }
     fclose(yyin);
-    printf("GENERAR ASSEMBLER!!!!!!!!!!!!!!!!!!!!!");
+   
     generarAssembler(bloquePtr);
     return 0;
 }
@@ -544,20 +542,23 @@ int armarTS (char* tipo, char* nombre){
        nombre[tamAux] = '\0'; 
     
     }/********/
+   
     if(nombre[0] == '@')
     {
-        strcpy(lexema,nombre);
+        //strcpy(lexema,nombre);
         strcpy(tablaSimbolos[puntero_array].tipo, tipo);
     }/******/
 	
-	if(strcmp(tipo,"ID")==0){
+	if(strcmp(tipo,"ID")==0 || nombre[0] == '@'){
 		strcpy(lexema,nombre);
 	}else
 		strcat(lexema,nombre);
     
 	for(i = 0; i < puntero_array; i++){ //Si esta vacia la TS, no entra
-		if(strcmp(tablaSimbolos[i].nombre, lexema) == 0)
-			return i; //Si el lexema ya existe en la ts, entonces retorno su posicion.
+		if(strcmp(tablaSimbolos[i].nombre, lexema) == 0){
+            return i; //Si el lexema ya existe en la ts, entonces retorno su posicion.
+        }
+			
 	}
 
 	if(strcmp(tipo,"CTE_ENT")==0){// Si el lexema es una cte, entonces seteo el campo "valor" en la ts.
@@ -696,7 +697,7 @@ nodo* crearHoja(const char *d, char * tipo) {
     nuevoNodo->hijoDer = NULL;
     nuevoNodo->hijoIzq = NULL;
     if(strncmp(nuevoNodo->dato, "@", 1) == 0) {
-        armarTS("int", nuevoNodo->dato);
+        armarTS(tipo, nuevoNodo->dato);
     }
     return nuevoNodo;
 }
@@ -841,7 +842,7 @@ void escribirGragh(nodo* padre) {
     fprintf(archivo, "%s", "}");
     
     fclose(archivo);
-    liberarMemoria(padre);
+    //liberarMemoria(padre);
     return;
 }
 
@@ -939,7 +940,7 @@ char * ponerComillas(char * valor){
     return strcpy(valor,res);
 }
 char * verSiVaInterrogacion(char *valor) {
-    if (strcmp(valor, " ") == 0) {
+    if (strcmp(valor, "") == 0) {
         return "?";
     }
     return valor;
@@ -977,7 +978,7 @@ int verTopePilaEtiqueta(const int tipoEtiqueta) {
 
 int esAritmetica(const char *operador) {
     // siendo aritmetica hay un lote de instrucciones predefinido, igual si es comparacion
-    printf("ES ARITMETICO?????????");
+    
     return strcmp(operador, "+") == 0 ||
     strcmp(operador, "-") == 0 ||
     strcmp(operador, "*") == 0 ||
@@ -986,7 +987,7 @@ int esAritmetica(const char *operador) {
 }
 void verOperacion(FILE * fp, nodo * raiz){
     if (esAritmetica(raiz->dato)){
-        printf("RAIZ--> DATO: %s\n", raiz->dato);
+        
         if(strcmp(raiz->dato, "=")==0){
         
             if(strcmp(raiz->tipo, "Cte_String")==0){
@@ -995,6 +996,7 @@ void verOperacion(FILE * fp, nodo * raiz){
                 fprintf(fp, "MOV di, OFFSET  %s\n", raiz->hijoIzq);
                 fprintf(fp, "CALL asignString\n");
             }else{
+               
                 fprintf(fp, "f%sld %s\n", cargaEntero(raiz->hijoDer), raiz->hijoDer->dato);
                 fprintf(fp, "f%sstp %s\n", cargaEntero(raiz->hijoIzq), raiz->hijoIzq->dato);
             }
@@ -1026,7 +1028,7 @@ void verOperacion(FILE * fp, nodo * raiz){
     }
 
     if(strcmp(raiz->dato, "PUT") == 0) {
-        fprintf(fp, "%s\n", obtenerInstruccionDisplay(raiz->hijoDer));
+        fprintf(fp, "%s\n", obtenerInstruccionPut(raiz->hijoDer));
         fprintf(fp, "newLine 1\n");
     }
 }
@@ -1071,7 +1073,7 @@ char* obtenerInstruccionComparacion(const char *comparador) {
             return "JNA";
         if (strcmp(comparador, "==") == 0)
             return "JE";
-        if (strcmp(comparador, "!=") == 0)
+        if (strcmp(comparador, "<>") == 0)
             return "JNE";
     } else {
         if (strcmp(comparador, ">") == 0)
@@ -1116,11 +1118,11 @@ char *cargaEntero(const nodo * hijo) {
 }
 
 void  recorrerArbolParaAssembler(FILE * fp, nodo* raiz){
-    printf("ESTOY EN ----------------> RECORRER ASSEMBLER\n");
+   
     if(raiz != NULL){
         int nodoActualIf = 0;
         int nodoActualWhile = 0;
-        printf("ESTOY EN ----------------> IF DE RECORRER ASSEMBLER\n");
+        
         if(strcmp(raiz->dato, "IF") == 0){
             tieneElse = 0;
             nodoActualIf = 1;
@@ -1145,7 +1147,7 @@ void  recorrerArbolParaAssembler(FILE * fp, nodo* raiz){
         }
         // RECORRO LA IZQUIERDA
         recorrerArbolParaAssembler(fp, raiz->hijoIzq);
-        printf("ESTOY EN ----------------> YA PASE IZQ\n");
+        
         // PASE POR LA IZQUIERDA
 
         if(nodoActualIf) {
@@ -1165,7 +1167,7 @@ void  recorrerArbolParaAssembler(FILE * fp, nodo* raiz){
         // RECORRO LA DERECHA
         recorrerArbolParaAssembler(fp, raiz->hijoDer);
         // PASE POR LA DERECHA
-        printf("ESTOY EN ----------------> YA PASE DER\n");
+        
         if (nodoActualIf) {
             fprintf(fp, "endif%d:\n", desapilarEtiqueta(ETIQUETA_IF));
         }
@@ -1174,11 +1176,11 @@ void  recorrerArbolParaAssembler(FILE * fp, nodo* raiz){
             fprintf(fp, "JMP condicionWhile%d\n", verTopePilaEtiqueta(ETIQUETA_WHILE));
             fprintf(fp, "endwhile%d:\n", desapilarEtiqueta(ETIQUETA_WHILE));
         }
-        printf("ESTOY EN ----------------> ES HOJA???\n");
+        
         if (esHoja(raiz->hijoIzq) && esHoja(raiz->hijoDer)) {
             // soy nodo mas a la izquierda con dos hijos hojas
             verOperacion(fp, raiz);
-            printf("ESTOY EN ----------------> SOY HOJA!!!\n");
+            
             // reduzco arbol
             raiz->hijoIzq = NULL;
             raiz->hijoDer = NULL;
@@ -1198,19 +1200,19 @@ char* obtenerInstruccionGet(nodo* nodo) {
 }
 
 
-char* obtenerInstruccionDisplay(nodo* nodo) {
+char* obtenerInstruccionPut(nodo* nodo) {
     // Los prints solo se permiten pueden IDs o strings
     char tipoAux [15];
     strcpy(tipoAux, nodo->tipo);
 
-    if (strcmp(tipoAux, "int")) {
-        sprintf(instruccionDisplay, "DisplayInteger %s", nodo);
-    } else if (strcmp(tipoAux, "float")) {
-        sprintf(instruccionDisplay, "DisplayFloat %s,2", nodo);
-    } else if (strcmp(tipoAux, "string")) {
-        sprintf(instruccionDisplay, "displayString %s", nodo);
-    } else if (strcmp(tipoAux, "Cte_String")) {
-        sprintf(instruccionDisplay, "displayString %s", conGuion(nodo->dato));
+    if (strcmp(tipoAux, "int")==0) {
+        sprintf(instruccionPut, "PutInteger %s", nodo);
+    } else if (strcmp(tipoAux, "float")==0) {
+        sprintf(instruccionPut, "PutFloat %s,2", nodo);
+    } else if (strcmp(tipoAux, "string")==0) {
+        sprintf(instruccionPut, "PutString %s", nodo);
+    } else if (strcmp(tipoAux, "Cte_String")==0) {
+        sprintf(instruccionPut, "PutString %s", conGuion(nodo->dato));
     }
-    return instruccionDisplay;
+    return instruccionPut;
 }

@@ -1,3 +1,4 @@
 DIM < contador,promedio,actual,suma> AS < Integer,Float,Float,Float >
-suma = 02.5+3;
+
+suma = 2 + 3;
 

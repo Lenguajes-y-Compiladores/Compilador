@@ -9,12 +9,11 @@ MAXTEXTSIZE equ 100
 
 .DATA
 
-contador                        	DD	
-promedio                        	DD	
-actual                          	DD	
-suma                            	DD	
-_02_5                           	DD	02.5
-_3                              	DD	3
+a                               	DD	?
+b                               	DD	?
+_2                              	DD	2
+_1                              	DD	1
+_5                              	DD	5
 
 .CODE
 
@@ -81,12 +80,26 @@ MOV es,ax
 FINIT
 FFREE
 
-fld _02.5
-fild _3
-fadd
+fld b
+fild 2
+fmul
 fstp @aux1
 fld @aux1
-fstp suma
+fild 1
+fadd
+fstp @aux2
+fld @aux2
+fstp a
+fild 2
+fld a
+fmul
+fstp @aux3
+fld @aux3
+fild 5
+fadd
+fstp @aux4
+fld @aux4
+fstp b
 
 liberar:
 	ffree

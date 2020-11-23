@@ -1,6 +1,6 @@
 DIM < contador,promedio,actual,suma> AS < Integer,Float,Float,Float >
 
 if (not contador <= 92) {
-	contador = contador + 1;
-	
+	contador = 1;
+	suma = 2.5;	
 }
