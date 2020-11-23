@@ -119,6 +119,7 @@ char instruccionDisplay[50];
 
 ////funciones
 
+
 void generarAssembler(nodo * raiz);
 char * nombreAssembler (char * nombre);
 char * ponerComillas(char * valor);
@@ -321,7 +322,7 @@ comparacion:
 
 comparador:
 			MAYOR {
-				comparadorPtr = crearHoja(">", "NULL");
+				comparadorPtr = crearHoja(">", "NULL"); //
 				printf("\n\tRegla 28: comparador -> MAYOR\n");
 			}
 			|MENOR {
@@ -988,7 +989,7 @@ void verOperacion(FILE * fp, nodo * raiz){
     if (esAritmetica(raiz->dato)){
         printf("RAIZ--> DATO: %s\n", raiz->dato);
         if(strcmp(raiz->dato, "=")==0){
-        
+
             if(strcmp(raiz->tipo, "Cte_String")==0){
                 asignacionString = 1;
                 fprintf(fp, "MOV si, OFFSET   %s\n", raiz->hijoDer);
@@ -1020,7 +1021,7 @@ void verOperacion(FILE * fp, nodo * raiz){
         else
             fprintf(fp, "%s %s%d\n", obtenerInstruccionComparacion(raiz->dato), obtenerSalto(), verTopePilaEtiqueta(ETIQUETA_IF));
     }
-    
+
     if(strcmp(raiz->dato, "GET") == 0) {
         fprintf(fp, "%s %s\n", obtenerInstruccionGet(raiz->hijoIzq), raiz->hijoIzq->dato);
     }
@@ -1058,7 +1059,7 @@ char* obtenerSalto() {
 }
 
 char* obtenerInstruccionComparacion(const char *comparador) {
-    
+
     if(condicionOR) {
         condicionOR = 0;
         if (strcmp(comparador, ">") == 0)
@@ -1126,7 +1127,7 @@ void  recorrerArbolParaAssembler(FILE * fp, nodo* raiz){
             nodoActualIf = 1;
             // pido nueva etiqueta porque estoy empezando a recorrer un IF
             apilarEtiqueta(ETIQUETA_IF);
-            
+
             if (strcmp(raiz->hijoDer->dato, "CUERPO") == 0) {
                 tieneElse = 1;
             }
@@ -1156,12 +1157,12 @@ void  recorrerArbolParaAssembler(FILE * fp, nodo* raiz){
             fprintf(fp, "JMP endif%d\n", verTopePilaEtiqueta(ETIQUETA_IF));
             fprintf(fp, "else%d:\n", verTopePilaEtiqueta(ETIQUETA_IF));
         }
-        
+
         if(nodoActualWhile) {
             fprintf(fp, "startWhile%d:\n", verTopePilaEtiqueta(ETIQUETA_WHILE));
             esWhile = 0; 
         }
-        
+
         // RECORRO LA DERECHA
         recorrerArbolParaAssembler(fp, raiz->hijoDer);
         // PASE POR LA DERECHA
@@ -1183,7 +1184,7 @@ void  recorrerArbolParaAssembler(FILE * fp, nodo* raiz){
             raiz->hijoIzq = NULL;
             raiz->hijoDer = NULL;
         }
-        
+
     }
 }
 
