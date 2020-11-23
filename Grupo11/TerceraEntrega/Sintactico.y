@@ -6,9 +6,6 @@
 
 #include "y.tab.h"
 
-#define ETIQUETA_IF 0
-#define ETIQUETA_WHILE 1
-
 int yystopparser=0;
 FILE  *yyin;
 
@@ -37,13 +34,11 @@ char* auxTDD;
 
 int buscar_TS(char* nombre);
 int set_Tipo_TS(char* nombre, char* tipo);
-char * obtenerTipoTS(char * tipo);
 void verificarDeclaraciones();
 /***************************************************/
 /*******************ARBOL***************************/
 typedef struct nodo{
     char dato[30];
-    char tipo[15];
     struct nodo* hijoDer;
     struct nodo* hijoIzq;
 }nodo; //estructura para el arbol sintactico
@@ -63,7 +58,7 @@ typedef t_nodo* t_pila;
 nodo* retorno = NULL;
 
 nodo* crearNodo(const char* , nodo* , nodo* );
-nodo* crearHoja(const char*, char * tipo);
+nodo* crearHoja(const char*);
 void crear_pila(t_pila *pp);
 int apilarDinamica(t_pila *, t_dato *);
 nodo * desapilarDinamica(t_pila *);
@@ -77,7 +72,7 @@ void llenarGragh(nodo* padre, FILE *arch, int numNodo);
 void liberarMemoria(nodo* padre);
 char * comparadorOpuesto(nodo* );
 //void validarComparacion();
-char * conGuion(const char *valor);
+
 /***************************************************/
 
 nodo* bloquePtr = NULL;
@@ -99,45 +94,11 @@ t_pila pila = NULL;
 nodo* pivot = NULL;
 
 /*************ASSEMBLER************************/
-////variables
-int cantAux=0;
-int tieneElse=0;
-int condicionOR=0;
-int esWhile = 0;
-
-int numEtiqWhile = 0;
-int numEtiqIf = 0;
-
-int pilaNumEtiqWhile [10];
-int pilaNumEtiqIf [10];
-
-int topePilaWhile = 0;
-int topePilaIf = 0;
-
-int asignacionString= 0;
-char instruccionDisplay[50];
-
-////funciones
-
 void generarAssembler(nodo * raiz);
 char * nombreAssembler (char * nombre);
 char * ponerComillas(char * valor);
 char * verSiVaInterrogacion(char *valor);
-void apilarEtiqueta(const int tipoEtiqueta);
-int desapilarEtiqueta(const int tipoEtiqueta);
-int verTopePilaEtiqueta(const int tipoEtiqueta);
-void verOperacion(FILE * fp, nodo * raiz);
-int esAritmetica(const char *operador);
-char* obtenerInstruccionAritmetica(const char *operador);
-int esComparacion(const char * comparador);
-char *cargaEntero(const nodo * hijo);
-char* obtenerSalto();
-int pedirAux(char* tipo);
-char* obtenerInstruccionDisplay(nodo* nodo);
-char* obtenerInstruccionGet(nodo* nodo);
-char* obtenerInstruccionComparacion(const char *comparador);
-void  recorrerArbolParaAssembler(FILE * fp, nodo* raiz);
-/***************************************************/
+
 %}
 
 %union {
@@ -257,9 +218,7 @@ sentencias:
 
 asignacion:
 			ID ASIG expresion {
-                char tipoAux [15];
-                strcpy(tipoAux,obtenerTipoTS($1)); 
-                asignacionPtr = crearNodo("=", crearHoja($1,tipoAux), desapilarDinamica(&pila));
+                asignacionPtr = crearNodo("=", crearHoja($1), desapilarDinamica(&pila));
 				printf("\n\tRegla 18: asignacion -> ID ASIG expresion\n");
 			}
 			;
@@ -321,50 +280,45 @@ comparacion:
 
 comparador:
 			MAYOR {
-				comparadorPtr = crearHoja(">", "NULL");
+				comparadorPtr = crearHoja(">");
 				printf("\n\tRegla 28: comparador -> MAYOR\n");
 			}
 			|MENOR {
-				comparadorPtr = crearHoja("<", "NULL");
+				comparadorPtr = crearHoja("<");
 				printf("\n\tRegla 29: comparador -> MENOR\n");
 			}
 			|MAYOR_IGUAL {
-				comparadorPtr = crearHoja(">=", "NULL");
+				comparadorPtr = crearHoja(">=");
 				printf("\n\tRegla 30: comparador -> MAYOR_IGUAL\n");
 			}
 			|MENOR_IGUAL {
-				comparadorPtr = crearHoja("<=", "NULL");
+				comparadorPtr = crearHoja("<=");
 				printf("\n\tRegla 31: comparador -> MENOR_IGUAL\n");
 			}
 			|IGUAL {
-				comparadorPtr = crearHoja("==", "NULL");
+				comparadorPtr = crearHoja("==");
 				printf("\n\tRegla 32: comparador -> IGUAL\n");
 			}
 			|DISTINTO {
-				comparadorPtr = crearHoja("<>", "NULL");
+				comparadorPtr = crearHoja("<>");
 				printf("\n\tRegla 33: comparador -> DISTINTO\n");
 			}
 			;
 
 entrada:
 		GET ID {
-            char tipoAux [15];
-            strcpy(tipoAux,obtenerTipoTS($2)); 
-			entradaPtr = crearNodo("GET", crearHoja($2, tipoAux), crearHoja("@STDIN", tipoAux));
+			entradaPtr = crearNodo("GET", crearHoja($2), crearHoja("@STDIN"));
 			printf("\n\tRegla 34: entrada -> GET ID\n");
 		}
 		;
 
 salida:
 		PUT ID {
-            char tipoAux [15];
-            strcpy(tipoAux,obtenerTipoTS($2));
-			salidaPtr = crearNodo("PUT", crearHoja("@STDOUT", tipoAux), crearHoja($2, tipoAux));
+			salidaPtr = crearNodo("PUT", crearHoja("@STDOUT"), crearHoja($2));
 			printf("\n\tRegla 35: salida -> PUT ID\n");
 		}
 		|PUT CTE_STRING {
-            
-			salidaPtr = crearNodo("PUT", crearHoja("@STDOUT", "Cte_String"), crearHoja($2, "Cte_String"));
+			salidaPtr = crearNodo("PUT", crearHoja("@STDOUT"), crearHoja($2));
 			printf("\n\tRegla 36: salida -> PUT CTE_STRING\n");
 		}
 		;
@@ -417,21 +371,19 @@ termino:
 
 factor:
 		ID {
-            char tipoAux [15];
-            strcpy(tipoAux,obtenerTipoTS($1));
-			factorPtr = crearHoja($1, tipoAux);
+			factorPtr = crearHoja($1);
 			printf("\n\tRegla 43: factor -> ID\n");
 		}
 		|CTE_ENTERA {
-			factorPtr = crearHoja(conGuion($1),"Cte_Entera");
+			factorPtr = crearHoja($1);
 			printf("\n\tRegla 44: factor -> CTE_ENTERA\n");
 		}
 		|CTE_REAL {
-			factorPtr = crearHoja(conGuion($1),"Cte_Real");
+			factorPtr = crearHoja($1);
 			printf("\n\tRegla 45: factor -> CTE_REAL\n");
 		}
 		|CTE_STRING {
-			factorPtr = crearHoja(conGuion($1),"Cte_String");
+			factorPtr = crearHoja($1);
 			printf("\n\tRegla 46: factor -> CTE_STRING\n");
 		}
 		|CTE_BINARIA {
@@ -443,7 +395,7 @@ factor:
                 printf("\nNo encontrado\n");
                 exit(1);
             }
-			factorPtr = crearHoja(conGuion(tablaSimbolos[pos].valor), "Cte_Binario");
+			factorPtr = crearHoja(tablaSimbolos[pos].valor);
 			printf("\n\tRegla 47: factor -> CTE_BINARIA\n");
 		}
 		|CTE_HEXA {
@@ -455,7 +407,7 @@ factor:
                 printf("\nNo encontrado\n");
                 exit(1);
             }
-			factorPtr = crearHoja(conGuion(tablaSimbolos[pos].valor),"Cte_Hexadecimal");
+			factorPtr = crearHoja(tablaSimbolos[pos].valor);
 			printf("\n\tRegla 48: factor -> CTE_HEXA\n");
 		}
 		|P_A expresion P_C {
@@ -485,12 +437,12 @@ contar:
 
 lista_constantes:
 				factor {
-					listaContantesPtr = crearNodo("CONTAR", crearNodo("IF", crearNodo("==", pivot, factorPtr), crearNodo("=", crearHoja("@CONT", "Cte_Entera"), crearNodo("+", crearHoja("@CONT", "Cte_Entera"), crearHoja("1", "Cte_Entera")))), NULL);
+					listaContantesPtr = crearNodo("CONTAR", crearNodo("IF", crearNodo("==", pivot, factorPtr), crearNodo("=", crearHoja("@CONT"), crearNodo("+", crearHoja("@CONT"), crearHoja("1")))), NULL);
 					//apilarDinamica(&pila, &listaContantesPtr);
 					printf("\n\tRegla 52: lista_constantes -> factor\n");
 				}
 				|lista_constantes COMA factor {
-					listaContantesPtr = crearNodo("CONTAR", crearNodo("IF", crearNodo("==", pivot, factorPtr), crearNodo("=", crearHoja("@CONT", "Cte_Entera"), crearNodo("+", crearHoja("@CONT", "Cte_Entera"), crearHoja("1", "Cte_Entera")))), listaContantesPtr);
+					listaContantesPtr = crearNodo("CONTAR", crearNodo("IF", crearNodo("==", pivot, factorPtr), crearNodo("=", crearHoja("@CONT"), crearNodo("+", crearHoja("@CONT"), crearHoja("1")))), listaContantesPtr);
 					//apilarDinamica(&pila, &listaContantesPtr);
 					printf("\n\tRegla 53: lista_constantes -> lista_constantes COMA factor\n");
 				}
@@ -513,7 +465,6 @@ int main(int argc, char* argv[])
 			printf("Error al crear el archivo de la tabla de simbolos\n");
     }
     fclose(yyin);
-    printf("GENERAR ASSEMBLER!!!!!!!!!!!!!!!!!!!!!");
     generarAssembler(bloquePtr);
     return 0;
 }
@@ -652,15 +603,6 @@ int i;
     return -1;
 }
 
-char * obtenerTipoTS(char * nombre){
-    int pos = buscar_TS(nombre);
-    if(pos == -1){
-        printf("\nNo encontrado\n");
-        exit(1);
-    }  
-    return tablaSimbolos[pos].tipo;
-}
-
 void verificarDeclaraciones(){
 	if(contadorVariables != contadorTipo){
 		printf("\nLa cantidad de variables declaradas es distinto a la cantidad de Tipos\n");
@@ -679,20 +621,18 @@ nodo* crearNodo(const char *d, nodo* hI, nodo* hD) {
         exit(1);
     }
     strcpy(nodoPadre->dato, d);
-    strcpy(nodoPadre->tipo, "NULL");
     nodoPadre->hijoDer = hD;
     nodoPadre->hijoIzq = hI;
     return nodoPadre;
 }
 
-nodo* crearHoja(const char *d, char * tipo) {
+nodo* crearHoja(const char *d) {
 	nodo* nuevoNodo = (nodo*)malloc(sizeof(nodo));
     if(nuevoNodo == NULL) {
         printf("No hay memoria disponible");
         exit(1);
     }
     strcpy(nuevoNodo->dato, d);
-    strcpy(nuevoNodo->tipo, tipo);
     nuevoNodo->hijoDer = NULL;
     nuevoNodo->hijoIzq = NULL;
     if(strncmp(nuevoNodo->dato, "@", 1) == 0) {
@@ -803,11 +743,6 @@ int esHoja(nodo *hoja) {
     }
     return hoja->hijoIzq == NULL && hoja->hijoDer == NULL;
 }
-char * conGuion(const char *valor){
-    char nombre[32] = "_";
-	strcat(nombre, valor);
-	return strdup(nombre);
-}
 
 /***************************/
 
@@ -907,8 +842,6 @@ void generarAssembler(nodo * raiz){
     
     fprintf(fp, "\nMOV AX,@DATA\nMOV DS,AX\nMOV es,ax\nFINIT\nFFREE\n\n");
     
-    ///INSTRUCCIONES
-    recorrerArbolParaAssembler(fp, raiz);
     
     ///FINAL
     fprintf(fp, "\nliberar:\n");
@@ -943,274 +876,4 @@ char * verSiVaInterrogacion(char *valor) {
         return "?";
     }
     return valor;
-}
-
-void apilarEtiqueta(const int tipoEtiqueta){
-    if (tipoEtiqueta == ETIQUETA_IF) {
-        numEtiqIf++;
-        pilaNumEtiqIf[topePilaIf++] = numEtiqIf;
-    }
-
-    if (tipoEtiqueta == ETIQUETA_WHILE) {
-        numEtiqWhile++;
-        pilaNumEtiqWhile[topePilaWhile++] = numEtiqWhile;
-    }
-}
-
-int desapilarEtiqueta(const int tipoEtiqueta) {
-    if (tipoEtiqueta == ETIQUETA_IF) {
-        return pilaNumEtiqIf[--topePilaIf];
-    }
-    if (tipoEtiqueta == ETIQUETA_WHILE) {
-        return pilaNumEtiqWhile[--topePilaWhile];
-    }
-}
-
-int verTopePilaEtiqueta(const int tipoEtiqueta) {
-    if (tipoEtiqueta == ETIQUETA_IF) {
-        return pilaNumEtiqIf[topePilaIf - 1];
-    }
-    if (tipoEtiqueta == ETIQUETA_WHILE) {
-        return pilaNumEtiqWhile[topePilaWhile - 1];
-    }
-}
-
-int esAritmetica(const char *operador) {
-    // siendo aritmetica hay un lote de instrucciones predefinido, igual si es comparacion
-    printf("ES ARITMETICO?????????");
-    return strcmp(operador, "+") == 0 ||
-    strcmp(operador, "-") == 0 ||
-    strcmp(operador, "*") == 0 ||
-    strcmp(operador, "/") == 0 ||
-    strcmp(operador, "=") == 0;
-}
-void verOperacion(FILE * fp, nodo * raiz){
-    if (esAritmetica(raiz->dato)){
-        printf("RAIZ--> DATO: %s\n", raiz->dato);
-        if(strcmp(raiz->dato, "=")==0){
-        
-            if(strcmp(raiz->tipo, "Cte_String")==0){
-                asignacionString = 1;
-                fprintf(fp, "MOV si, OFFSET   %s\n", raiz->hijoDer);
-                fprintf(fp, "MOV di, OFFSET  %s\n", raiz->hijoIzq);
-                fprintf(fp, "CALL asignString\n");
-            }else{
-                fprintf(fp, "f%sld %s\n", cargaEntero(raiz->hijoDer), raiz->hijoDer->dato);
-                fprintf(fp, "f%sstp %s\n", cargaEntero(raiz->hijoIzq), raiz->hijoIzq->dato);
-            }
-        } else{
-            fprintf(fp, "f%sld %s\n", cargaEntero(raiz->hijoIzq), raiz->hijoIzq->dato); //st0 = izq
-            fprintf(fp, "f%sld %s\n", cargaEntero(raiz->hijoDer), raiz->hijoDer->dato); //st0 = der st1 = izq
-            fprintf(fp, "%s\n", obtenerInstruccionAritmetica(raiz->dato));
-            fprintf(fp, "f%sstp @aux%d\n", cargaEntero(raiz), pedirAux(raiz->tipo));
-
-            // Guardo en el arbol el dato del resultado, si uso un aux
-            sprintf(raiz->dato, "@aux%d", cantAux);
-        }
-    }
-    if(esComparacion(raiz->dato)){
-        // esto funciona para comparaciones simples
-        fprintf(fp, "f%sld %s\n", cargaEntero(raiz->hijoDer), raiz->hijoDer->dato); //st0 = der
-        fprintf(fp, "f%sld %s\n", cargaEntero(raiz->hijoIzq), raiz->hijoIzq->dato); //st0 = izq  st1 = der
-        fprintf(fp, "fcom\n"); // compara ST0 con ST1"
-        fprintf(fp, "fstsw ax\n");
-        fprintf(fp, "sahf\n");
-        if (esWhile)
-            fprintf(fp, "%s %s%d\n", obtenerInstruccionComparacion(raiz->dato), obtenerSalto(), verTopePilaEtiqueta(ETIQUETA_WHILE));
-        else
-            fprintf(fp, "%s %s%d\n", obtenerInstruccionComparacion(raiz->dato), obtenerSalto(), verTopePilaEtiqueta(ETIQUETA_IF));
-    }
-    
-    if(strcmp(raiz->dato, "GET") == 0) {
-        fprintf(fp, "%s %s\n", obtenerInstruccionGet(raiz->hijoIzq), raiz->hijoIzq->dato);
-    }
-
-    if(strcmp(raiz->dato, "PUT") == 0) {
-        fprintf(fp, "%s\n", obtenerInstruccionDisplay(raiz->hijoDer));
-        fprintf(fp, "newLine 1\n");
-    }
-}
-
-int esComparacion(const char *comparador) {
-    // es necesaria esta funcion para que no entren los nodos AND, OR, NOT, etc que no tienen accion
-    return strcmp(comparador, ">") == 0 ||
-    strcmp(comparador, ">=") == 0 ||
-    strcmp(comparador, "<") == 0 ||
-    strcmp(comparador, "<=") == 0 ||
-    strcmp(comparador, "==") == 0 ||
-    strcmp(comparador, "!=") == 0;
-}
-
-char* obtenerSalto() {
-    if(condicionOR) {
-        if(esWhile)
-            return "startWhile";
-        return "startIf";
-    } else {
-        if(esWhile)
-            return "endwhile";
-        if (tieneElse) {
-            return "else";
-        } else {
-            return "endif";
-        }
-    }
-}
-
-char* obtenerInstruccionComparacion(const char *comparador) {
-    
-    if(condicionOR) {
-        condicionOR = 0;
-        if (strcmp(comparador, ">") == 0)
-            return "JNBE";
-        if (strcmp(comparador, ">=") == 0)
-            return "JNB";
-        if (strcmp(comparador, "<") == 0)
-            return "JNAE";
-        if (strcmp(comparador, "<=") == 0)
-            return "JNA";
-        if (strcmp(comparador, "==") == 0)
-            return "JE";
-        if (strcmp(comparador, "!=") == 0)
-            return "JNE";
-    } else {
-        if (strcmp(comparador, ">") == 0)
-            return "JNA";
-        if (strcmp(comparador, ">=") == 0)
-            return "JNAE";
-        if (strcmp(comparador, "<") == 0)
-            return "JNB";
-        if (strcmp(comparador, "<=") == 0)
-            return "JNBE";
-        if (strcmp(comparador, "==") == 0)
-            return "JNE";
-        if (strcmp(comparador, "<>") == 0)
-            return "JE";
-    }
-}
-
-int pedirAux(char* tipo) {
-    cantAux++;
-    char aux[15];
-    sprintf(aux, "@aux%d", cantAux);
-    armarTS(tipo, aux);
-    return cantAux;
-}
-
-char* obtenerInstruccionAritmetica(const char *operador) {
-    if (strcmp(operador, "+") == 0)
-        return "fadd";
-    if (strcmp(operador, "-") == 0)
-        return "fsub";
-    if (strcmp(operador, "*") == 0)
-        return "fmul";
-    if (strcmp(operador, "/") == 0)
-        return "fdiv";
-}
-
-char *cargaEntero(const nodo * hijo) {
-    if (strcmp(hijo->tipo, "Cte_Entera")==0) {
-        return "i";
-    }
-    return "";
-}
-
-void  recorrerArbolParaAssembler(FILE * fp, nodo* raiz){
-    printf("ESTOY EN ----------------> RECORRER ASSEMBLER\n");
-    if(raiz != NULL){
-        int nodoActualIf = 0;
-        int nodoActualWhile = 0;
-        printf("ESTOY EN ----------------> IF DE RECORRER ASSEMBLER\n");
-        if(strcmp(raiz->dato, "IF") == 0){
-            tieneElse = 0;
-            nodoActualIf = 1;
-            // pido nueva etiqueta porque estoy empezando a recorrer un IF
-            apilarEtiqueta(ETIQUETA_IF);
-            
-            if (strcmp(raiz->hijoDer->dato, "CUERPO") == 0) {
-                tieneElse = 1;
-            }
-            if (strcmp(raiz->hijoIzq->dato, "OR") == 0) {
-                condicionOR = 1;
-            }
-        }
-        if(strcmp(raiz->dato, "WHILE") == 0) {
-            nodoActualWhile = 1;
-            esWhile = 1;
-            apilarEtiqueta(ETIQUETA_WHILE);
-            fprintf(fp, "condicionWhile%d:\n", verTopePilaEtiqueta(ETIQUETA_WHILE));
-            if (strcmp(raiz->hijoIzq->dato, "OR") == 0) {
-                condicionOR = 1;
-            }
-        }
-        // RECORRO LA IZQUIERDA
-        recorrerArbolParaAssembler(fp, raiz->hijoIzq);
-        printf("ESTOY EN ----------------> YA PASE IZQ\n");
-        // PASE POR LA IZQUIERDA
-
-        if(nodoActualIf) {
-            fprintf(fp, "startIf%d:\n", verTopePilaEtiqueta(ETIQUETA_IF));
-        }
-
-        if(strcmp(raiz->dato, "CUERPO") == 0) {
-            fprintf(fp, "JMP endif%d\n", verTopePilaEtiqueta(ETIQUETA_IF));
-            fprintf(fp, "else%d:\n", verTopePilaEtiqueta(ETIQUETA_IF));
-        }
-        
-        if(nodoActualWhile) {
-            fprintf(fp, "startWhile%d:\n", verTopePilaEtiqueta(ETIQUETA_WHILE));
-            esWhile = 0; 
-        }
-        
-        // RECORRO LA DERECHA
-        recorrerArbolParaAssembler(fp, raiz->hijoDer);
-        // PASE POR LA DERECHA
-        printf("ESTOY EN ----------------> YA PASE DER\n");
-        if (nodoActualIf) {
-            fprintf(fp, "endif%d:\n", desapilarEtiqueta(ETIQUETA_IF));
-        }
-        //while 
-        if(nodoActualWhile) {
-            fprintf(fp, "JMP condicionWhile%d\n", verTopePilaEtiqueta(ETIQUETA_WHILE));
-            fprintf(fp, "endwhile%d:\n", desapilarEtiqueta(ETIQUETA_WHILE));
-        }
-        printf("ESTOY EN ----------------> ES HOJA???\n");
-        if (esHoja(raiz->hijoIzq) && esHoja(raiz->hijoDer)) {
-            // soy nodo mas a la izquierda con dos hijos hojas
-            verOperacion(fp, raiz);
-            printf("ESTOY EN ----------------> SOY HOJA!!!\n");
-            // reduzco arbol
-            raiz->hijoIzq = NULL;
-            raiz->hijoDer = NULL;
-        }
-        
-    }
-}
-
-char* obtenerInstruccionGet(nodo* nodo) {
-    // Solo se permite get para IDs
-    if (strcmp(nodo->tipo, "int"))
-        return "GetInt";
-    if (strcmp(nodo->tipo, "float"))
-        return "GetFloat";
-    if (strcmp(nodo->tipo,"string"))
-        return "getString";
-}
-
-
-char* obtenerInstruccionDisplay(nodo* nodo) {
-    // Los prints solo se permiten pueden IDs o strings
-    char tipoAux [15];
-    strcpy(tipoAux, nodo->tipo);
-
-    if (strcmp(tipoAux, "int")) {
-        sprintf(instruccionDisplay, "DisplayInteger %s", nodo);
-    } else if (strcmp(tipoAux, "float")) {
-        sprintf(instruccionDisplay, "DisplayFloat %s,2", nodo);
-    } else if (strcmp(tipoAux, "string")) {
-        sprintf(instruccionDisplay, "displayString %s", nodo);
-    } else if (strcmp(tipoAux, "Cte_String")) {
-        sprintf(instruccionDisplay, "displayString %s", conGuion(nodo->dato));
-    }
-    return instruccionDisplay;
 }
