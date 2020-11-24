@@ -26,7 +26,7 @@ struct struct_tablaSimbolos tablaSimbolos[1000];
 int armarTS (char*, char*);
 int imprimirTS();
 
-int yyerror();
+int yyerror(const char *);
 int yylex();
 
 /*****************PARA EL TIPO***********************/
@@ -35,11 +35,22 @@ int contadorVariables = 0;
 int contadorTipo = 0;
 char* auxTDD;
 
+char expresionesTipoDato[100][100];
+int indexExpresionesTipoDato = 0;
+
 int buscar_TS(char* nombre);
 int set_Tipo_TS(char* nombre, char* tipo);
 char * obtenerTipoTS(char * tipo);
 void verificarDeclaraciones();
+void agregarTipoDatoArray(char *);
+void validarTiposDatoAsignacion(char *);
+int validarExpresionEntera();
+int validarExpresionReal();
+int validarExpresionString();
 /***************************************************/
+void validarExistenciaID(char *nombre);
+void validarDuplicacionID(char *nombre);
+
 /*******************ARBOL***************************/
 typedef struct nodo{
     char dato[30];
@@ -76,7 +87,7 @@ void escribirGragh(nodo* padre);
 void llenarGragh(nodo* padre, FILE *arch, int numNodo);
 void liberarMemoria(nodo* padre);
 char * comparadorOpuesto(nodo* );
-//void validarComparacion();
+void validarComparacion(nodo *, nodo *);
 char * conGuion(const char *valor);
 /***************************************************/
 
@@ -203,12 +214,12 @@ declaracion_variables:
 					;
 
 lista_variables:
-				ID {strcpy(tablaVariables[contadorVariables],yylval.strid_val); contadorVariables++; printf("\n\tRegla 4: lista_variables -> ID\n");}
-				|lista_variables COMA ID {strcpy(tablaVariables[contadorVariables],yylval.strid_val); contadorVariables++; printf("\n\tRegla 5: lista_variables -> ID COMA lista_variables\n");}
+				ID {validarDuplicacionID(yylval.strid_val); armarTS("ID", yylval.strid_val); strcpy(tablaVariables[contadorVariables],yylval.strid_val); contadorVariables++; printf("\n\tRegla 4: lista_variables -> ID\n");}
+				|lista_variables COMA ID {validarDuplicacionID(yylval.strid_val); armarTS("ID", yylval.strid_val); strcpy(tablaVariables[contadorVariables],yylval.strid_val); contadorVariables++; printf("\n\tRegla 5: lista_variables -> ID COMA lista_variables\n");}
 				;
 
 tipos_variables:
-				tipo_variable {set_Tipo_TS(tablaVariables[contadorTipo], auxTDD); contadorTipo++;   printf("\n\tRegla 6: tipos_variables -> tipo_variable\n");}
+				tipo_variable {set_Tipo_TS(tablaVariables[contadorTipo], auxTDD); contadorTipo++; printf("\n\tRegla 6: tipos_variables -> tipo_variable\n");}
 				|tipos_variables COMA tipo_variable {set_Tipo_TS(tablaVariables[contadorTipo], auxTDD); contadorTipo++; printf("\n\tRegla 7: tipos_variables -> tipo_variable COMA tipos_variables\n");}
 				;
 
@@ -256,10 +267,11 @@ sentencias:
 			;
 
 asignacion:
-			ID ASIG expresion {
+			ID {validarExistenciaID($1);} ASIG expresion {
                 char tipoAux [15];
                 strcpy(tipoAux,obtenerTipoTS($1)); 
                 asignacionPtr = crearNodo("=", crearHoja($1,tipoAux), desapilarDinamica(&pila));
+				validarTiposDatoAsignacion(tipoAux);
 				printf("\n\tRegla 18: asignacion -> ID ASIG expresion\n");
 			}
 			;
@@ -307,8 +319,11 @@ condicion:
 
 comparacion:
 			expresion comparador expresion {
-                //validarComparacion();
+				//nodo *exp1 = desapilarDinamica(&pila);
+				//nodo *exp2 = desapilarDinamica(&pila);
+                //validarComparacion(exp2, exp1);
                 comparacionPtr = crearNodo(comparadorPtr->dato, desapilarDinamica(&pila), desapilarDinamica(&pila));
+				//comparacionPtr = crearNodo(comparadorPtr->dato, exp2, exp1);
                 apilarDinamica(&pila,&comparacionPtr);
                 printf("\n\tRegla 26: comparacion -> expresion comparador expresion\n");
             }
@@ -348,6 +363,7 @@ comparador:
 
 entrada:
 		GET ID {
+			validarExistenciaID($2);
             char tipoAux [15];
             strcpy(tipoAux,obtenerTipoTS($2)); 
 			entradaPtr = crearNodo("GET", crearHoja($2, tipoAux), crearHoja("@STDIN", tipoAux));
@@ -357,6 +373,7 @@ entrada:
 
 salida:
 		PUT ID {
+			validarExistenciaID($2);
             char tipoAux [15];
             strcpy(tipoAux,obtenerTipoTS($2));
             printf("\nTIPO ID: %s\n", tipoAux);
@@ -415,21 +432,26 @@ termino:
 
 factor:
 		ID {
+			validarExistenciaID($1);
             char tipoAux [15];
             strcpy(tipoAux,obtenerTipoTS($1));
 			factorPtr = crearHoja($1, tipoAux);
+			agregarTipoDatoArray(tipoAux);
 			printf("\n\tRegla 43: factor -> ID\n");
 		}
 		|CTE_ENTERA {
 			factorPtr = crearHoja(conGuion($1),"Cte_Entera");
+			agregarTipoDatoArray("Cte_Entera");
 			printf("\n\tRegla 44: factor -> CTE_ENTERA\n");
 		}
 		|CTE_REAL {
 			factorPtr = crearHoja(conGuion(nombreAssembler($1)),"Cte_Real");
+			agregarTipoDatoArray("Cte_Real");
 			printf("\n\tRegla 45: factor -> CTE_REAL\n");
 		}
 		|CTE_STRING {
 			factorPtr = crearHoja(conGuion(nombreAssembler($1)),"Cte_String");
+			agregarTipoDatoArray("Cte_String");
 			printf("\n\tRegla 46: factor -> CTE_STRING\n");
 		}
 		|CTE_BINARIA {
@@ -442,6 +464,7 @@ factor:
                 exit(1);
             }*/
 			factorPtr = crearHoja(conGuion($1), "Cte_Binario");
+			agregarTipoDatoArray("Cte_Binario");
 			printf("\n\tRegla 47: factor -> CTE_BINARIA\n");
 		}
 		|CTE_HEXA {
@@ -454,6 +477,7 @@ factor:
                 exit(1);
             }*/
 			factorPtr = crearHoja(conGuion($1),"Cte_Hexadecimal");
+			agregarTipoDatoArray("Cte_Hexadecimal");
 			printf("\n\tRegla 48: factor -> CTE_HEXA\n");
 		}
 		|P_A expresion P_C {
@@ -515,9 +539,10 @@ int main(int argc, char* argv[])
     generarAssembler(bloquePtr);
     return 0;
 }
-int yyerror(void)
+int yyerror(const char *s)
 {
     printf("Syntax Error\n");
+	printf("%s\n",s);
     system("Pause");
     exit(1);
 }
@@ -668,8 +693,117 @@ void verificarDeclaraciones(){
 		printf("Por favor, declare correctamente y vuelva a ejecutar el programa\n");
 		exit(1);
 	}
-
 }
+
+void validarDuplicacionID(char *nombre){
+	int pos = buscar_TS(nombre);
+    if(pos != -1){
+		char msg[50];
+		sprintf(msg, "La variable \"%s\" ya fue declarada.\nPor favor, elija otro nombre.", nombre);
+		yyerror(msg);
+        exit(1);
+    } 
+}
+
+void validarExistenciaID(char *nombre){
+	int pos = buscar_TS(nombre);
+    if(pos == -1){
+		char msg[50];
+		sprintf(msg, "La variable \"%s\" no fue declarada.", nombre);
+		yyerror(msg);
+        exit(1);
+    } 
+}
+
+void agregarTipoDatoArray(char *tipo) {
+    strcpy(expresionesTipoDato[indexExpresionesTipoDato], tipo);
+    indexExpresionesTipoDato++;
+}
+
+void validarComparacion(nodo *exp1, nodo *exp2) {
+	
+	char *tipo1;
+	char *tipo2;
+	strcpy(tipo1, obtenerTipoTS(exp1->dato));
+	strcpy(tipo2, obtenerTipoTS(exp2->dato));
+	
+	if(
+		(strcmp(tipo1, "int") != 0 || strcmp(tipo1, "Cte_Entera") != 0 ||
+		strcmp(tipo1, "float") != 0 || strcmp(tipo1, "Cte_Real") != 0) &&
+		(strcmp(tipo2, "int") != 0 || strcmp(tipo2, "Cte_Entera") != 0 ||
+		strcmp(tipo2, "float") != 0 || strcmp(tipo2, "Cte_Real") != 0)
+	){
+		yyerror("Tipo de comparacion INCOMPATIBLE");
+	}
+}
+
+void validarTiposDatoAsignacion(char *tipo) {
+    int ret = 0;
+	
+	if(strcmp(tipo, "int") == 0){
+		ret = validarExpresionEntera();
+	}
+	
+	if(strcmp(tipo, "float") == 0){
+		ret = validarExpresionReal();
+	}
+	
+	if(strcmp(tipo, "string") == 0){
+		ret = validarExpresionString();
+	}
+	
+    if (ret == 1) {
+        yyerror("No coinciden los tipos de datos");
+    }
+}
+
+int validarExpresionEntera() {
+
+    while(indexExpresionesTipoDato > 0) {
+        if (
+            strcmp(expresionesTipoDato[indexExpresionesTipoDato - 1], "Cte_Entera") != 0 && 
+            strcmp(expresionesTipoDato[indexExpresionesTipoDato - 1], "int") != 0 &&
+			strcmp(expresionesTipoDato[indexExpresionesTipoDato - 1], "Cte_Binario") != 0 &&
+			strcmp(expresionesTipoDato[indexExpresionesTipoDato - 1], "Cte_Hexadecimal") != 0
+        ) {
+            return 1;
+        }
+        indexExpresionesTipoDato--;
+    }
+    return 0;
+}
+
+int validarExpresionReal() {
+    while(indexExpresionesTipoDato > 0) {
+        if (!(
+				strcmp(expresionesTipoDato[indexExpresionesTipoDato - 1], "Cte_Real") == 0 || 
+				strcmp(expresionesTipoDato[indexExpresionesTipoDato - 1], "float") == 0 ||
+				strcmp(expresionesTipoDato[indexExpresionesTipoDato - 1], "Cte_Entera") == 0 ||
+				strcmp(expresionesTipoDato[indexExpresionesTipoDato - 1], "int") == 0 ||
+				strcmp(expresionesTipoDato[indexExpresionesTipoDato - 1], "Cte_Binario") == 0 ||
+				strcmp(expresionesTipoDato[indexExpresionesTipoDato - 1], "Cte_Hexadecimal") == 0
+            )
+        ) {
+            return 1;
+        }
+        indexExpresionesTipoDato--;
+    }
+    return 0;
+}
+
+int validarExpresionString() {
+    while(indexExpresionesTipoDato > 0) {
+        if (
+			strcmp(expresionesTipoDato[indexExpresionesTipoDato - 1], "string") != 0 || 
+			strcmp(expresionesTipoDato[indexExpresionesTipoDato - 1], "Cte_String") != 0
+        ) {
+            return 1;
+        }
+        indexExpresionesTipoDato--;
+    }
+    return 0;
+}
+
 /***************************/
 /********ARBOL**************/
 

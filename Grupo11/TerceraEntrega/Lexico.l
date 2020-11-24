@@ -110,7 +110,7 @@ CTE_HEXA			0x({DIGITO}|{HEXA})+
 {DISTINTO}		 	{return DISTINTO;}
 
 {ID}				{
-					validarLongitudCadena(yytext); armarTS("ID", yytext); yylval.strid_val = strdup(yytext); return ID;
+					validarLongitudCadena(yytext)/*; armarTS("ID", yytext)*/; yylval.strid_val = strdup(yytext); return ID;
 					}
 					
 					
