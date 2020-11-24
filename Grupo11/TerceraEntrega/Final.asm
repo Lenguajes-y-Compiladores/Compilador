@@ -27,6 +27,9 @@ _0b10                           	DD	2
 _actual_mayor_a_2_y_dist_a_0    	DB	"actual mayor a 2 y dist a ",'$', 27 dup (?)
 _0b111010                       	DD	58
 _no_es_mayor_que_2              	DB	"no es mayor que ",'$', 17 dup (?)
+@aux1                           	DD	?
+@aux2                           	DD	?
+@aux3                           	DD	?
 
 .CODE
 

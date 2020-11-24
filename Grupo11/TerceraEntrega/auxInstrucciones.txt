@@ -1,0 +1,67 @@
+DisplayString _Prueba_txt_LyC_Tema_1_
+newLine 1
+DisplayString _Ingrese_entero_para_actual
+newLine 1
+GetFloat actual
+fild _0
+fistp contador
+fld _02_5
+fild _0xA2B0
+fadd
+fstp @aux1
+fld @aux1
+fstp suma
+condicionWhile1:
+fild _92
+fild contador
+fcom
+fstsw ax
+sahf
+JNBE endwhile1
+startWhile1:
+fild contador
+fild _1
+fadd
+fstp @aux2
+fld @aux2
+fistp contador
+fld suma
+fld actual
+fadd
+fstp @aux3
+fld @aux3
+fstp suma
+JMP condicionWhile1
+endwhile1:
+DisplayString _La_suma_es_
+newLine 1
+DisplayFloat suma,2
+newLine 1
+fild _0b10
+fld actual
+fcom
+fstsw ax
+sahf
+JNA else1
+fild _0
+fld actual
+fcom
+fstsw ax
+sahf
+JE else1
+startIf1:
+DisplayString _actual_mayor_a_2_y_dist_a_0
+newLine 1
+JMP endif1
+else1:
+fild _0b111010
+fld actual
+fcom
+fstsw ax
+sahf
+JNB endif2
+startIf2:
+DisplayString _no_es_mayor_que_2
+newLine 1
+endif2:
+endif1:

@@ -130,6 +130,9 @@ char instruccionPut[50];
 
 ////funciones
 
+int escribirInstruccionesEnASM(FILE* fpFinal, char * nameFile);
+int generarInstrucciones(nodo * raiz);
+
 void generarAssembler(nodo * raiz);
 char * nombreAssembler (char * nombre);
 char * ponerComillas(char * valor);
@@ -531,12 +534,13 @@ int main(int argc, char* argv[])
     else
     {
         yyparse();
-		if(imprimirTS() == 1) 
-			printf("Error al crear el archivo de la tabla de simbolos\n");
+		
     }
     fclose(yyin);
    
     generarAssembler(bloquePtr);
+    if(imprimirTS() == 1) 
+			printf("Error al crear el archivo de la tabla de simbolos\n");
     return 0;
 }
 int yyerror(const char *s)
@@ -1021,7 +1025,10 @@ void generarAssembler(nodo * raiz){
     fprintf(fp,"include macros2.asm\n");
 	fprintf(fp,"include number.asm\n\n");
 	fprintf(fp,".MODEL LARGE\n.386\n.STACK 200h\n\nMAXTEXTSIZE equ 100\n\n.DATA\n\n");
-
+    
+    ///SOLO GENERA INSTRUCCIONES
+    generarInstrucciones(raiz);
+    
     ///TABLA DE SIMBOLO
     for(i=0; i<puntero_array; i++){
         
@@ -1045,7 +1052,7 @@ void generarAssembler(nodo * raiz){
     fprintf(fp, "\nSTART:\nMOV AX,@DATA\nMOV DS,AX\nMOV es,ax\nFINIT\nFFREE\n\n");
     
     ///INSTRUCCIONES
-    recorrerArbolParaAssembler(fp, raiz);
+    escribirInstruccionesEnASM(fp,"auxInstrucciones.txt");
     
     ///FINAL
     fprintf(fp, "\nliberar:\n");
@@ -1356,4 +1363,30 @@ char* obtenerInstruccionPut(nodo* nodo) {
         sprintf(instruccionPut, "DisplayString %s", nodo->dato);
     }
     return instruccionPut;
+}
+
+int escribirInstruccionesEnASM(FILE* fpFinal, char * nameFile){
+    FILE * file = fopen( nameFile, "r");
+    char buffer[100];
+	if (file == NULL) {
+		printf("Error al abrir el archivo %s", nameFile);
+		return 1;
+	}
+
+    while(fgets(buffer, sizeof(buffer), file)) {
+        fprintf(fpFinal, "%s", buffer);
+    }
+
+    fclose(file);
+}
+int generarInstrucciones(nodo * raiz) {
+	FILE * fp = fopen("auxInstrucciones.txt", "wt+");
+	if (fp == NULL) {
+		printf("Error al abrir el archivo instrucciones");
+		return 1;
+	}
+	recorrerArbolParaAssembler(fp, raiz);
+	fclose(fp);
+	return 0;
+
 }
